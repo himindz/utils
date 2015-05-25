@@ -19,7 +19,8 @@ ENV PATH $PATH:$JAVA_HOME/bin
 
 RUN  rm /usr/bin/java
 RUN  ln -s /usr/java/default/bin/java /usr/bin/java
-
+RUN  mkdir -p /usr/lib/jvm/ 
+RUN ln -s /usr/java/default /usr/lib/jvm/java-7-oracle
 
 RUN yum -y install openssh-server epel-release && \
     yum -y install pwgen && \
