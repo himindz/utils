@@ -1,0 +1,692 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define">
+<j:set var="buildenv" value="${build.getEnvironment(listener)}"/>
+<j:set var="customMsg" value="${buildenv.get('filecontents')}"/>
+${customMsg}
+  <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+      <!-- If you delete this tag, the sky will fall on your head -->
+      <meta name="viewport" content="width=device-width" />
+      <base href="http://localhost:8080/job/test/cucumber-html-reports/" />
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <title>ZURBemails</title>
+
+      <style data-inline="true">
+        * {
+        margin:0;
+        padding:0;
+        font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+        }
+
+        img {
+          max-width: 100%;
+        }
+        .collapse {
+          margin:0;
+          padding:0;
+        }
+        body {
+          -webkit-font-smoothing:antialiased;
+          -webkit-text-size-adjust:none;
+          width: 100%!important;
+          height: 100%;
+        }
+        a { color: #2BA6CB;}
+
+        .btn {
+          text-decoration:none;
+          color: #FFF;
+          background-color: #666;
+          padding:10px 16px;
+          font-weight:bold;
+          margin-right:10px;
+          text-align:center;
+          cursor:pointer;
+          display: inline-block;
+        }
+
+        .callout {
+          padding:15px;
+          margin-bottom: 15px;
+        }
+
+        .callout.ALT {
+          background-color: #d9edf7;
+        }
+
+        .callout a {
+          font-weight:bold;
+          color: #2BA6CB;
+        }
+
+        table.social {
+          /*   padding:15px; */
+          background-color: #ebebeb;
+
+        }
+        .social .soc-btn {
+          padding: 3px 7px;
+          font-size:12px;
+          margin-bottom:10px;
+          text-decoration:none;
+          color: #FFF;font-weight:bold;
+          display:block;
+          text-align:center;
+        }
+        a.fb { background-color: #3B5998!important; }
+        a.tw { background-color: #1daced!important; }
+        a.gp { background-color: #DB4A39!important; }
+        a.ms { background-color: #000!important; }
+
+        .sidebar .soc-btn {
+          display:block;
+          width:100%;
+        }
+
+        table.head-wrap { width: 100%;}
+
+        .header.container table td.logo { padding: 15px; }
+        .header.container table td.label { padding: 15px; padding-left:0px;}
+
+        table.body-wrap { width: 100%;}
+
+        table.footer-wrap {
+          width: 100%;	clear:both!important;
+        }
+        .footer-wrap .container td.content  p { border-top: 1px solid rgb(215,215,215); padding-top:15px;}
+        .footer-wrap .container td.content p {
+          font-size:10px;
+          font-weight: bold;
+
+        }
+
+        h1,h2,h3,h4,h5,h6 {
+          font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+          line-height: 1.1; margin-bottom:15px; color:#000;
+        }
+        h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+          font-size: 60%; color: #6f6f6f; line-height: 0; text-transform: none;
+        }
+
+        h1 { font-weight:200; font-size: 44px;}
+        h2 { font-weight:200; font-size: 37px;}
+        h3 { font-weight:500; font-size: 27px;}
+        h4 { font-weight:500; font-size: 23px;}
+        h5 { font-weight:900; font-size: 17px;}
+        h6 { font-weight:900; font-size: 14px; text-transform: uppercase; color:#444;}
+
+        .collapse { margin:0!important;}
+
+        p, ul {
+          margin-bottom: 10px;
+          font-weight: normal;
+          font-size:14px;
+          line-height:1.6;
+        }
+        p.lead { font-size:17px; }
+        p.last { margin-bottom:0px;}
+
+        ul li {
+          margin-left:5px;
+          list-style-position: inside;
+        }
+
+        ul.sidebar {
+          background:#ebebeb;
+          display:block;
+          list-style-type: none;
+        }
+        ul.sidebar li { display: block; margin:0;}
+        ul.sidebar li a {
+          text-decoration:none;
+          color: #666;
+          padding:10px 16px;
+          /* 	font-weight:bold; */
+          margin-right:10px;
+          /* 	text-align:center; */
+          cursor:pointer;
+          border-bottom: 1px solid #777777;
+          border-top: 1px solid #FFFFFF;
+          display:block;
+          margin:0;
+        }
+        ul.sidebar li a.last { border-bottom-width:0px;}
+        ul.sidebar li a h1,ul.sidebar li a h2,ul.sidebar li a h3,ul.sidebar li a h4,ul.sidebar li a h5,ul.sidebar li a h6,ul.sidebar li a p { margin-bottom:0!important;}
+
+
+
+          /* ---------------------------------------------------
+             RESPONSIVENESS
+             Nuke it from orbit. It's the only way to be sure.
+         ------------------------------------------------------ */
+
+          /* Set a max-width, and make it display as block so it will automatically stretch to that width, but
+          will also shrink down on a phone or something */
+        .container {
+          display:block!important;
+          max-width:600px!important;
+          margin:0 auto!important; /* makes it centered */
+          clear:both!important;
+        }
+
+          /* This should also be a block element, so that it will fill 100% of the .container */
+        .content {
+          padding:15px;
+          max-width:600px;
+          margin:0 auto;
+          display:block;
+        }
+
+          /* Let's make sure tables in the content area are 100% wide */
+        .content table { width: 100%; }
+
+          /* Odds and ends */
+        .column {
+          width: 300px;
+          float:left;
+        }
+        .column tr td { padding: 15px; }
+        .column-wrap {
+          padding:0!important;
+          margin:0 auto;
+          max-width:600px!important;
+        }
+        .column table { width:100%;}
+        .social .column {
+          width: 280px;
+          min-width: 279px;
+          float:left;
+        }
+
+          /* Be sure to place a .clear element after each set of columns, just to be safe */
+        .clear { display: block; clear: both; }
+
+        tr.test_failed {
+          background-color: #f2dede;
+          color: #b94a48;
+        }
+
+        td.test_failed tt {
+          padding-left: 20px;
+          color: #b94a48;
+        }
+
+        code.console {
+          font-family: Menlo, Monaco, "Courier New", monospace;
+          word-wrap: break-word;
+          font-size: 12px;
+        }
+
+        .content>table {
+          table-layout:fixed;
+        }
+
+      </style>
+      <style>
+        .callout.SUCCESS {
+        background-color: #dff0d8;
+        border: #468847;
+        color: #468847;
+        }
+
+        .callout.FAILURE {
+        background-color: #f2dede;
+        border: #b94a48;
+        color: #b94a48;
+        }
+
+        .callout.UNSTABLE {
+        background-color: #fcf8e3;
+        border: #c09853;
+        color: #c09853;
+        }
+
+        @media only screen and (max-width: 600px) {
+
+        a[class="btn"] {
+        display:block!important; margin-bottom:10px!important; background-image:none!important;
+        margin-right:0!important;
+        }
+
+        div[class="column"] { width: auto!important; float:none!important;}
+
+        table.social div[class="column"] {
+        width:auto!important;
+        }
+
+        }
+
+      </style>
+
+    </head>
+
+    <body bgcolor="#FFFFFF">
+      <!-- HEADER -->
+      <table class="head-wrap" bgcolor="#999999">
+        <tr>
+          <td></td>
+          <td class="header container">
+
+            <div class="content">
+              <table bgcolor="#999999">
+                <tr>
+                  <td>
+                    <img src="http://jenkins-ci.org/sites/default/files/jenkins_logo.png" width="200" height="50"/>
+                  </td>
+                  <td align="right"><h6 class="collapse">${project.name}</h6></td>
+                </tr>
+              </table>
+            </div>
+
+          </td>
+          <td></td>
+        </tr>
+      </table><!-- /HEADER -->
+
+      <!-- BODY -->
+      <table class="body-wrap">
+        <tr>
+          <td></td>
+          <td class="container" bgcolor="#FFFFFF">
+
+            <div class="content">
+              <table>
+                <tr>
+                  <td>
+                    <j:set var="spc" value="&amp;nbsp;&amp;nbsp;" />
+                    <div class="callout ${build.result}">
+
+                      <table class="bordered status ${build.result}" cellpadding="0" cellspacing="0" border="0" 
+                          align="center">
+                        <tr>
+                          <td valign="center" colspan="2"><h3>BUILD ${build.result}</h3></td>
+                        </tr>
+			<tr>
+                          <td>Cucumber Report</td><td><a href="${rooturl}${build.url}cucumber-html-reports/tag-overview.html">Click Here</a></td>
+                        </tr>
+                        <tr>
+                          <td>Build URL</td><td><a href="${rooturl}${build.url}">${build.url}</a></td>
+                        </tr>
+                        <tr>
+                          <td>Project</td><td>${project.name}</td></tr>
+                        <tr>
+                          <td>Date of build</td><td>${it.timestampString}</td>
+                        </tr>
+                        <tr>
+                          <td>Build duration</td><td>${build.durationString}</td>
+                        </tr>
+                        <tr>
+                          <td>Build cause</td>
+                          <td>
+                            <j:forEach var="cause" items="${build.causes}">${cause.shortDescription} </j:forEach>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Build description</td><td>${build.description}</td>
+                        </tr>
+                        <tr>
+                          <td>Build server</td>
+                          <td>
+                            <j:choose>
+                              <j:when test="${build.builtOnStr!=''}">${build.builtOnStr}</j:when>
+                              <j:otherwise>build-vm</j:otherwise>
+                            </j:choose>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Build branch</td>
+                          <td>
+                            ${ENV}
+                            <j:if test="${build.changeSet.branch!=null}">
+                              <j:whitespace trim="false"> in ${build.changeSet.branch}</j:whitespace>
+                            </j:if>
+                          </td>
+                        </tr>
+                      </table>
+                    </div><!-- /Callout Panel -->
+
+                    <div class="callout">
+                      <!-- HEALTH TEMPLATE -->
+                      <j:set var="healthIconSize" value="16x16" />
+                      <j:set var="healthReports" value="${project.buildHealthReports}" />
+                      <j:if test="${healthReports!=null}">
+                        <h3>Health Report</h3>
+                        <table class="bordered" cellpadding="0" cellspacing="0" border="0" align="center">
+                          <tr>
+                            <th width="10%">W</th>
+                            <th>Description</th>
+                            <th>Score</th>
+                          </tr>
+                          <j:forEach var="healthReport" items="${healthReports}">
+                            <tr>
+                              <td>
+                                <img src="${rooturl}${healthReport.getIconUrl(healthIconSize)}" />
+                              </td>
+                              <td>${healthReport.description}</td>
+                              <td align="right">${healthReport.score}</td>
+                            </tr>
+                          </j:forEach>
+                        </table>
+                        <br />
+                      </j:if>
+                    </div>
+
+
+                    <div class="callout ALT">
+
+                      <!-- CHANGE SET -->
+                      <j:set var="changeSet" value="${build.changeSet}" />
+                      <j:if test="${changeSet!=null}">
+                        <j:set var="hadChanges" value="false" />
+                        <a href="${rooturl}${build.url}/changes">
+                          <h3>Changes</h3>
+                        </a>
+                        <j:forEach var="cs" items="${changeSet.logs}" varStatus="loop">
+                          <j:set var="hadChanges" value="true" />
+                          <h4>${cs.msgAnnotated}
+                            <small>by <em>${cs.author}</em></small>
+                          </h4>
+                          <table cellpadding="0" cellspacing="0" border="0" align="center">
+                            <j:forEach var="p" items="${cs.affectedFiles}">
+                              <tr>
+                                <td width="10%">
+                                  <j:set var="type" value="${spc}${p.editType.name}"/>
+                                  ${type}
+                                </td>
+                                <td>${p.path}</td>
+                              </tr>
+                            </j:forEach>
+                          </table>
+                        </j:forEach>
+                        <j:if test="${!hadChanges}">
+                          <p>No Changes</p>
+                        </j:if>
+                        <br />
+                      </j:if>
+                    </div>
+
+
+                      <!-- JUnit TEMPLATE -->
+                      <j:set var="junitResultList" value="${it.JUnitTestResult}" />
+                      <j:if test="${junitResultList.isEmpty()!=true}">
+                        <div class="callout">
+                        <a href="${rooturl}${build.url}/testReport">
+                          <h3>JUnit Tests</h3>
+                        </a>
+                        <table class="bordered" cellpadding="0" cellspacing="0" border="0" align="center">
+                          <tr>
+                            <th class="border">Package</th>
+                            <th class="border">Failed</th>
+                            <th class="border">Passed</th>
+                            <th class="border">Skipped</th>
+                            <th class="border">Total</th>
+                          </tr>
+                          <j:forEach var="junitResult" items="${it.JUnitTestResult}">
+                            <j:forEach var="pr" items="${junitResult.getChildren()}">
+                              <j:set var="testTrClass" value=""/>
+                              <j:if test="${pr.getFailCount() > 0}">
+                                <j:set var="testTrClass" value="test_failed"/>
+                              </j:if>
+
+                              <j:set var="failed" value="${pr.getFailCount()}"/>
+                              <j:set var="passed" value="${pr.getPassCount()}"/>
+                              <j:set var="skipped" value="${pr.getSkipCount()}"/>
+                              <j:set var="total" value="${pr.getPassCount()+pr.getFailCount()+pr.getSkipCount()}"/>
+                              <tr class="testPackage ${testTrClass}">
+                                <td class="border">
+                                  <tt>${pr.getName()}</tt>
+                                </td>
+                                <td class="border test_failed" align="right">${failed}</td>
+                                <td class="border test_passed" align="right">${passed}</td>
+                                <td class="border test_skipped" align="right">${skipped}</td>
+                                <td class="border" align="right">
+                                  <b>${total}</b>
+                                </td>
+                              </tr>
+                              <j:forEach var="failed_test" items="${pr.getFailedTests()}">
+                                <tr>
+                                  <td class="test_failed name" colspan="5">
+                                    <tt>
+                                      <j:set var="testname" value="${failed_test.getSimpleName()}.${failed_test.getName()}"/>
+                                      <j:if test="${failed_test.age > 1}">
+                                        ${testname}
+                                        <em>(age: ${failed_test.age})</em>
+                                      </j:if>
+                                      <j:if test="${failed_test.age == 1}">
+                                        <strong>
+                                          ${testname}
+                                          <em>(age: ${failed_test.age})</em>
+                                        </strong>
+                                      </j:if>
+                                    </tt>
+                                  </td>
+                                </tr>
+                              </j:forEach>
+                            </j:forEach>
+                          </j:forEach>
+                        </table>
+                        <br />
+                        </div>
+                      </j:if>
+
+
+                      <!-- COBERTURA TEMPLATE -->
+                      <j:set var="coberturaAction" value="${it.coberturaAction}" />
+                      <j:if test="${coberturaAction!=null}">
+                        <j:set var="coberturaResult" value="${coberturaAction.result}" />
+                        <j:if test="${coberturaResult!=null}">
+                    <div class="callout ALT">
+                          <a href="${rooturl}${build.url}/cobertura">
+                            <h3>Cobertura Report</h3>
+                          </a>
+                          <h4>Project Coverage Summary</h4>
+                          <table class="border" cellpadding="0" cellspacing="0" border="0" align="center">
+                            <tr>
+                              <th class="border">Name</th>
+                              <j:forEach var="metric" items="${coberturaResult.metrics}">
+                                <th class="border">${metric.name}</th>
+                              </j:forEach>
+                            </tr>
+                            <tr>
+                              <td class="border">${coberturaResult.name}</td>
+                              <j:forEach var="metric" items="${coberturaResult.metrics}">
+                                <td class="border" data="${coberturaResult.getCoverage(metric).percentageFloat}">
+                                  ${coberturaResult.getCoverage(metric).percentage}%
+                                  (${coberturaResult.getCoverage(metric)})
+                                </td>
+                              </j:forEach>
+                            </tr>
+                          </table>
+                          <j:if test="${coberturaResult.sourceCodeLevel}">
+                            <h4>Source</h4>
+                            <j:choose>
+                              <j:when test="${coberturaResult.sourceFileAvailable}">
+                                <div style="overflow-x:scroll;">
+                                  <table class="source" cellpadding="0" cellspacing="0" border="0" align="center">
+                                    <thead>
+                                      <tr>
+                                        <th colspan="3">${coberturaResult.relativeSourcePath}</th>
+                                      </tr>
+                                    </thead>
+                                    ${coberturaResult.sourceFileContent}
+                                  </table>
+                                </div>
+                              </j:when>
+                              <j:otherwise>
+                                <p>
+                                  <i>Source code is unavailable</i>
+                                </p>
+                              </j:otherwise>
+                            </j:choose>
+                          </j:if>
+                          <j:forEach var="element" items="${coberturaResult.childElements}">
+                            <j:set var="childMetrics" value="${coberturaResult.getChildMetrics(element)}" />
+                            <h4>Coverage Breakdown by ${element.displayName}</h4>
+                            <table class="bordered" cellpadding="0" cellspacing="0" border="0" align="center">
+                              <tr>
+                                <th class="border">Name</th>
+                                <j:forEach var="metric" items="${childMetrics}">
+                                  <th class="border">${metric.name}</th>
+                                </j:forEach>
+                              </tr>
+                              <j:forEach var="c" items="${coberturaResult.children}">
+                                <j:set var="child" value="${coberturaResult.getChild(c)}" />
+                                <tr>
+                                  <td class="border">
+                                    ${child.xmlTransform(child.name)}
+                                  </td>
+                                  <j:forEach var="metric" items="${childMetrics}">
+                                    <j:set var="childResult" value="${child.getCoverage(metric)}" />
+                                    <j:choose>
+                                      <j:when test="${childResult!=null}">
+                                        <td class="border" data="${childResult.percentageFloat}">${childResult.percentage}%
+                                          (${childResult})
+                                        </td>
+                                      </j:when>
+                                      <j:otherwise>
+                                        <td class="border" data="101">N/A</td>
+                                      </j:otherwise>
+                                    </j:choose>
+                                  </j:forEach>
+                                </tr>
+                              </j:forEach>
+                            </table>
+                          </j:forEach>
+                    </div>
+                        </j:if>
+                        <br />
+                      </j:if>
+
+                      <!-- JACOCO TEMPLATE -->
+                      <j:set var="jacocoAction" value="${it.getAction('hudson.plugins.jacoco.JacocoBuildAction')}" />
+                      <j:if test="${jacocoAction!=null}">
+                        <j:set var="jacocoResult" value="${jacocoAction.result}" />
+                        <j:if test="${jacocoResult!=null}">
+                    <div class="callout ALT">
+                          <a href="${rooturl}${build.url}jacoco/">
+                            <h3>Jacoco Results</h3>
+                          </a>
+                          <table class="bordered" cellpadding="0" cellspacing="0" border="0" align="center">
+                            <tr>
+                              <th class="border">Package</th>
+                              <th class="border">Branches</th>
+                              <th class="border">Complexity</th>
+                              <th class="border">Instructions</th>
+                              <th class="border">Methods</th>
+                              <th class="border">Lines</th>
+                              <th class="border">Classes</th>
+                            </tr>
+                            <j:forEach var="child" items="${jacocoResult.getChildren().entrySet()}">
+                              <j:set var="cResult" value="${child.value}"/>
+                              <tr>
+                                <td class="border">
+                                  <a href="${rooturl}${build.url}jacoco/${child.key}/"><tt>${child.key}</tt></a>
+                                </td>
+                                <td class="border right">${cResult.branchCoverage.percentage}%</td>
+                                <td class="border right">${cResult.complexityScore.percentage}%</td>
+                                <td class="border right">${cResult.instructionCoverage.percentage}%</td>
+                                <td class="border right">${cResult.methodCoverage.percentage}%</td>
+                                <td class="border right">${cResult.lineCoverage.percentage}%</td>
+                                <td class="border right">${cResult.classCoverage.percentage}%</td>
+                              </tr>
+                            </j:forEach>
+                            <tr>
+                              <td class="border">
+                                <a href="${rooturl}${build.url}jacoco/"><tt>OVERALL</tt></a>
+                              </td>
+                              <td class="border right">${jacocoResult.branchCoverage.percentage}%</td>
+                              <td class="border right">${jacocoResult.complexityScore.percentage}%</td>
+                              <td class="border right">${jacocoResult.instructionCoverage.percentage}%</td>
+                              <td class="border right">${jacocoResult.methodCoverage.percentage}%</td>
+                              <td class="border right">${jacocoResult.lineCoverage.percentage}%</td>
+                              <td class="border right">${jacocoResult.classCoverage.percentage}%</td>
+                            </tr>
+                          </table>
+                    </div>
+                        </j:if>
+                      </j:if>
+
+
+                      <!-- ARTIFACTS -->
+                      <j:set var="artifacts" value="${build.artifacts}" />
+                      <j:if test="${artifacts!=null and artifacts.size()&gt;0}">
+                    <div class="callout">
+                        <h3>Build Artifacts</h3>
+                        <ul>
+                          <j:forEach var="f" items="${artifacts}">
+                            <li>
+                              <a href="${rooturl}${build.url}artifact/${f}">${f}</a>
+                            </li>
+                          </j:forEach>
+                        </ul>
+                    </div>
+                      </j:if>
+
+                      <!-- MAVEN ARTIFACTS -->
+                      <j:set var="mbuilds" value="${build.moduleBuilds}" />
+                      <j:if test="${mbuilds!=null}">
+                    <div class="callout">
+                        <h3>Build Artifacts</h3>
+                        <j:forEach var="m" items="${mbuilds}">
+                          <h4>${m.key.displayName}</h4>
+                          <j:forEach var="mvnbld" items="${m.value}">
+                            <j:set var="artifacts" value="${mvnbld.artifacts}" />
+                            <j:if test="${artifacts!=null and artifacts.size()&gt;0}">
+                              <ul>
+                                <j:forEach var="f" items="${artifacts}">
+                                  <li>
+                                    <a href="${rooturl}${mvnbld.url}artifact/${f}">${f}</a>
+                                  </li>
+                                </j:forEach>
+                              </ul>
+                            </j:if>
+                          </j:forEach>
+                        </j:forEach>
+                        <br />
+                    </div>
+                      </j:if>
+
+                    <div class="callout ALT">
+                      <!-- CONSOLE OUTPUT -->
+                      <a href="${rooturl}${build.url}/console">
+                        <h3>Console Output</h3>
+                      </a>
+                      <code class="console">
+                        <j:forEach var="line" items="${build.getLog(50)}">
+                        ${line}<br/>
+                        </j:forEach>
+                      </code>
+                      <br />
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+          </td>
+          <td></td>
+        </tr>
+      </table><!-- /BODY -->
+
+      <!-- FOOTER -->
+      <table class="footer-wrap">
+        <tr>
+          <td></td>
+          <td class="container">
+
+            <!-- content -->
+            <div class="content">
+              <p>
+              You are receiving this email from Jenkins because you're either on a notification list or you 
+              commited some code to a project being built by Jenkins.
+              </p>
+            </div><!-- /content -->
+
+          </td>
+          <td></td>
+        </tr>
+      </table><!-- /FOOTER -->
+
+    </body>
+  </html>
+</j:jelly>
