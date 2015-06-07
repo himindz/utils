@@ -111,6 +111,9 @@ RUN npm install -g xml
 
 
 RUN git clone https://github.com/ali-himindz/cucumber-junit.git
+WORKDIR cucumber-junit
+RUN npm install 
+WORKDIR ..
 RUN mv cucumber-junit /usr/bin/.
 
 
