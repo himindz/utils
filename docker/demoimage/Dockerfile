@@ -13,6 +13,22 @@ RUN apt-get install -y zip unzip git curl bash
 RUN apt-get install -y build-essential
 RUN apt-get install -y nginx
 
+RUN apt-get remove -y openssh-client openssh-server
+RUN apt-get update
+
+
+#Add User jenkins
+RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins && \
+    echo "jenkins:password" | chpasswd
+
+#Install and Start SSH server
+RUN apt-get install -y openssh-server && \
+    mkdir /var/run/sshd && \
+    /usr/sbin/sshd
+
+
+
+
 
 RUN \
   echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
