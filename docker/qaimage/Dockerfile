@@ -88,7 +88,7 @@ RUN add-apt-repository ppa:chris-lea/node.js
 RUN apt-get update
 RUN apt-get install -y nodejs
 RUN update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
-RUN npm install xml
+RUN npm install -g xml
 
 
 RUN git clone https://github.com/ali-himindz/cucumber-junit.git
