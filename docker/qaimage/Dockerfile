@@ -12,6 +12,7 @@ RUN apt-get install -y software-properties-common python-software-properties
 RUN apt-get install -y zip unzip git curl bash zlib1g-dev
 RUN apt-get install -y build-essential
 RUN apt-get install -y nginx
+RUN apt-get install -y sshpass
 
 RUN apt-get install -y ruby
 RUN apt-get install -y ruby-dev

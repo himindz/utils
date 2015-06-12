@@ -20,6 +20,7 @@ RUN gem install rspec
 RUN gem install ruby-jmeter
 RUN gem install jsonpath
 RUN gem install colorize
+RUN apt-get install -y sshpass
 
 
 RUN apt-get remove -y openssh-client openssh-server
