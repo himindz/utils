@@ -12,6 +12,7 @@ RUN apt-get install -y software-properties-common python-software-properties
 RUN apt-get install -y zip unzip git curl bash zlib1g-dev
 RUN apt-get install -y build-essential
 RUN apt-get install -y nginx
+RUN apt-get install -y sshpass
 
 RUN apt-get install -y ruby
 RUN apt-get install -y ruby-dev
@@ -20,6 +21,22 @@ RUN gem install rspec
 RUN gem install ruby-jmeter
 RUN gem install jsonpath
 RUN gem install colorize
+
+RUN apt-get remove -y openssh-client openssh-server
+RUN apt-get update
+
+
+#Add User jenkins
+RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins && \
+    echo "jenkins:password" | chpasswd
+
+#Install and Start SSH server
+RUN apt-get install -y openssh-server && \
+    mkdir /var/run/sshd && \
+    /usr/sbin/sshd
+
+
+
 
 
 RUN \
@@ -72,10 +89,13 @@ RUN add-apt-repository ppa:chris-lea/node.js
 RUN apt-get update
 RUN apt-get install -y nodejs
 RUN update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
-RUN npm install xml
+RUN npm install -g xml
 
 
 RUN git clone https://github.com/ali-himindz/cucumber-junit.git
+WORKDIR cucumber-junit
+RUN npm install 
+WORKDIR ..
 RUN mv cucumber-junit /usr/bin/.
 
 

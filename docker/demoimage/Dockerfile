@@ -12,6 +12,23 @@ RUN apt-get install -y software-properties-common python-software-properties
 RUN apt-get install -y zip unzip git curl bash
 RUN apt-get install -y build-essential
 RUN apt-get install -y nginx
+RUN apt-get install -y sshpass
+
+RUN apt-get remove -y openssh-client openssh-server
+RUN apt-get update
+
+
+#Add User jenkins
+RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins && \
+    echo "jenkins:password" | chpasswd
+
+#Install and Start SSH server
+RUN apt-get install -y openssh-server && \
+    mkdir /var/run/sshd && \
+    /usr/sbin/sshd
+
+
+
 
 
 RUN \
