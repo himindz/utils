@@ -3,6 +3,8 @@ MAINTAINER Ali Khan <alikha@himindz.ie>
 
 RUN rm -rf /etc/Dockerfile
 ADD Dockerfile /etc/Dockerfile
+RUN rm -rf /etc/apt/sources.list
+ADD sources.list /etc/apt/sources.list
 
 RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
