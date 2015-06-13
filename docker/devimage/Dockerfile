@@ -109,7 +109,7 @@ RUN apt-get update
 RUN apt-get install -y nodejs
 RUN update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
 RUN npm install -g xml
-
+RUN npm install -g grunt-cli 
 
 RUN git clone https://github.com/ali-himindz/cucumber-junit.git
 WORKDIR cucumber-junit
