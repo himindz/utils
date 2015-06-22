@@ -1,0 +1,41 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require 'yaml'
+
+settings = YAML.load_file 'vagrant.yml'
+Vagrant.configure("2") do |config|
+ 
+  config.vm.provision "docker"
+ 
+  # The following line terminates all ssh connections. Therefore
+  # Vagrant will be forced to reconnect.
+  # That's a workaround to have the docker command in the PATH
+  config.vm.provision "shell", inline:
+    "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
+ 
+  config.vm.define "dockerhost"
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.network "forwarded_port",
+    guest: 8080, host: 18080
+
+  config.vm.network "forwarded_port",
+    guest: 80, host: 8888
+
+  config.vm.network "forwarded_port",
+    guest: 443, host: 9443
+
+  config.vm.network "forwarded_port",
+    guest: 2222, host: 12222
+
+ 
+  config.vm.provider :virtualbox do |vb|
+      vb.name = "dockerhost"
+  end
+  
+  config.vm.synced_folder settings['api_src_dir']['host'], settings['api_src_dir']['guest']
+  config.vm.synced_folder settings['web_src_dir']['host'], settings['web_src_dir']['guest']
+  config.vm.synced_folder settings['war_folder']['host'], settings['war_folder']['guest']
+  config.vm.synced_folder settings['web_deploy']['host'], settings['web_deploy']['guest']
+  config.vm.synced_folder settings['home_folder']['host'], settings['home_folder']['guest']
+
+end

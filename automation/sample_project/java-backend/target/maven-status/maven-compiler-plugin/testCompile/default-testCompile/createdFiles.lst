@@ -1,0 +1,5 @@
+ngdemo/tests/integration/web/DummyRestServiceTest.class
+ngdemo/tests/integration/web/infrastructure/ServerProvider$1.class
+ngdemo/tests/integration/web/UserRestServiceTest.class
+ngdemo/tests/integration/web/infrastructure/ServerProvider.class
+ngdemo/tests/integration/web/infrastructure/ClientProvider.class
