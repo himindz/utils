@@ -1,6 +1,11 @@
 FROM ubuntu:14.04
 MAINTAINER Ali Khan <alikhan@himindz.ie>
 
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
 RUN rm -rf /etc/Dockerfile
 ADD Dockerfile /etc/Dockerfile
 RUN rm -rf /etc/apt/sources.list
@@ -57,13 +62,8 @@ RUN apt-get install -y openssh-server && \
     /usr/sbin/sshd
 
 
-#Add User developer
-RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/developer --gecos "User" developer && \
-    echo "developer:password" | chpasswd
-
-
 #Add User jenkins
-RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins && \
+RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
     echo "jenkins:password" | chpasswd
 # Install Grails
 WORKDIR /usr/lib/jvm
@@ -123,10 +123,8 @@ RUN mv cucumber-junit /usr/bin/.
 EXPOSE 8080 8000 80 443
 RUN echo $(grep $(hostname) /etc/hosts | cut -f1) localhost>> /etc/hosts 
 
-RUN locale-gen en_US.UTF-8  
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
-ENV LC_ALL en_US.UTF-8  
+ADD setenv.sh /usr/local/tomcat/bin/setenv.sh
+
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD localhost.crt /etc/nginx/ssl/localhost.crt
 ADD localhost.key /etc/nginx/ssl/localhost.key

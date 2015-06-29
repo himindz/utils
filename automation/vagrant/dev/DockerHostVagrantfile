@@ -1,0 +1,63 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require 'yaml'
+dev_uid = Process.uid
+settings = YAML.load_file 'vagrant.yml'
+home_folder = ENV['HOME']
+gradle_folder = home_folder+"/.gradle"
+api_src_folder = home_folder+"/api_project"
+web_src_folder = home_folder+"/web_project"
+
+$script = <<SCRIPT
+DEV_UID=$1
+USERNAME=$2
+HOME_FOLDER=$3
+echo $DEV_UID
+#Add developer user
+adduser --quiet --uid $DEV_UID --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME && \
+    echo "$USERNAME:password" | chpasswd
+echo "$USERNAME  ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell" do |s|
+        s.inline = $script
+        s.args = [dev_uid,settings['user']['name'],home_folder]
+  end
+  config.vm.provision "docker"
+  # The following line terminates all ssh connections. Therefore
+  # Vagrant will be forced to reconnect.
+  # That's a workaround to have the docker command in the PATH
+  config.vm.provision "shell", inline:
+    "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
+  config.vm.network "forwarded_port",
+    guest: 8080, host: 18080
+
+  config.vm.network "forwarded_port",
+    guest: 8000, host: 8000
+  
+  config.vm.network "forwarded_port",
+    guest: 80, host: 8888
+
+  config.vm.network "forwarded_port",
+    guest: 443, host: 9443
+
+  config.vm.network "forwarded_port",
+    guest: 2222, host: 12222
+
+
+  config.vm.provider :virtualbox do |vb|
+      vb.name = "dockerhost2"
+      vb.memory = "2048"
+  end
+  
+  config.vm.synced_folder settings['api_src_dir']['host'], api_src_folder,
+    owner: dev_uid
+  config.vm.synced_folder settings['web_src_dir']['host'], web_src_folder,
+    owner: dev_uid
+  config.vm.synced_folder settings['web_deploy']['host'], settings['web_deploy']['guest'],
+    owner: dev_uid
+  config.vm.synced_folder settings['gradle_folder']['host'], gradle_folder,
+    owner: dev_uid
+end
+

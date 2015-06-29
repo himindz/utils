@@ -1,15 +1,17 @@
+user:
+  name : ali
 api_src_dir:
-  host:  ../sample_project/java-backend
+  host:  ../../sample_project/java-backend
   guest: /home/developer/api_project
 web_src_dir:
-  host:  ../sample_project/frontend
+  host:  ../../sample_project/frontend
   guest: /home/developer/web_project
 war_folder:
-  host:  ../sample_project/java-backend/target/ngdemo
+  host:  ../../sample_project/java-backend/target/ngdemo
   guest: /usr/local/tomcat/webapps
 web_deploy:
-  host:  ../sample_project/frontend
+  host:  ../../sample_project/frontend
   guest: /var/www/apps/localhost/dist
-home_folder:
+gradle_folder:
   host:  /home/ali/.gradle
-  guest: /home/developer/.gradle
+
