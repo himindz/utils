@@ -13,7 +13,7 @@ ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
 Vagrant.configure("2") do |config|
   config.vm.define "devimage" do |a|
     a.vm.provider "docker" do |d|
-      d.build_dir = "../../docker/devimage"
+      d.build_dir = "../../docker/devimage/"
       d.env = {"DEV_UID"=>dev_uid,"USERNAME"=>settings['user']['name'],"HOME_FOLDER"=>home_folder}
       d.build_args = ["-t=devimage"]
       d.force_host_vm = true

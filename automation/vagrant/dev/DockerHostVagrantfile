@@ -20,7 +20,14 @@ echo "$USERNAME  ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
 SCRIPT
 
 Vagrant.configure("2") do |config|
+  file_to_disk = File.realpath( "." ).to_s + "/disk.vdi"
+  config.vm.define "dockerhost"
+  config.vm.box = "phusion/ubuntu-14.04-amd64"
 
+
+
+  config.vm.provision :shell, inline: "sudo apt-get update"
+  config.vm.provision :shell, inline: "sudo apt-get -y install lvm2"
   config.vm.provision "docker"
   
   # The following line terminates all ssh connections. Therefore
@@ -36,8 +43,6 @@ Vagrant.configure("2") do |config|
         s.args = [dev_uid,settings['user']['name'],home_folder]
   end
 
-  config.vm.define "dockerhost"
-  config.vm.box = "ubuntu/trusty64"
 
 
   config.vm.network "forwarded_port",
@@ -55,12 +60,28 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port",
     guest: 2222, host: 12222
 
-
   config.vm.provider :virtualbox do |vb|
+    if ARGV[0] == "up" && ! File.exist?(file_to_disk) 
+       puts "Creating 50GB disk #{file_to_disk}."
+       vb.customize [
+            'createhd', 
+            '--filename', file_to_disk, 
+            '--format', 'VDI', 
+            '--size', 20000 * 1024 # 20 GB
+            ] 
+       vb.customize [
+            'storageattach', :id, 
+            '--storagectl', 'SATA Controller', 
+            '--port', 1, '--device', 0, 
+            '--type', 'hdd', '--medium', 
+            file_to_disk
+            ]
+    end
       vb.name = "dockerhost"
       vb.memory = "2048"
   end
-  
+  config.vm.provision "shell", path: "add_new_disk.sh"
+
   config.vm.synced_folder settings['api_src_dir']['host'], api_src_folder,
     owner: dev_uid
   config.vm.synced_folder settings['web_src_dir']['host'], web_src_folder,
