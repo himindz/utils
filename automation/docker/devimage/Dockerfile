@@ -16,7 +16,8 @@ ADD sudoers /etc/sudoers
 RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
 RUN mkdir -p /var/www/apps/localhost/public
-RUN apt-get install -y software-properties-common 
+RUN apt-get install -y software-properties-common
+RUN apt-get remove -y  openssh-client openssh-server
 
 
 RUN add-apt-repository ppa:cwchien/gradle
@@ -25,7 +26,6 @@ RUN add-apt-repository ppa:webupd8team/java
 RUN add-apt-repository ppa:chris-lea/node.js
 
 
-RUN apt-get remove -y  openssh-client openssh-server
 
 RUN apt-get update
 RUN apt-get install -y oracle-java8-installer
@@ -42,7 +42,6 @@ RUN apt-get install -y gradle
 RUN apt-get install -y openssh-server
 RUN apt-get install -y nodejs
 RUN update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
-
 
 RUN npm install -g xml
 RUN npm install -g yo grunt-cli bower
@@ -98,11 +97,11 @@ RUN set -x \
 
 RUN git clone https://github.com/ali-himindz/cucumber-junit.git
 WORKDIR cucumber-junit
-RUN npm install 
+RUN npm install
 WORKDIR ..
 RUN mv cucumber-junit /usr/bin/.
 EXPOSE 8080 8000 80 443
-RUN echo $(grep $(hostname) /etc/hosts | cut -f1) localhost>> /etc/hosts 
+RUN echo $(grep $(hostname) /etc/hosts | cut -f1) localhost>> /etc/hosts
 
 ADD setenv.sh /usr/local/tomcat/bin/setenv.sh
 
