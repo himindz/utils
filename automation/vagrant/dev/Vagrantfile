@@ -1,13 +1,39 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 require 'yaml'
-
-settings = YAML.load_file 'vagrant.yml'
+require 'rbconfig'
 home_folder = ENV['HOME']
+  def os
+    @os ||= (
+      host_os = RbConfig::CONFIG['host_os']
+      case host_os
+      when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
+        :windows
+      when /darwin|mac os/
+        :macosx
+      when /linux/
+        :linux
+      when /solaris|bsd/
+        :unix
+      else
+        raise Error::WebDriverError, "unknown os: #{host_os.inspect}"
+      end
+    )
+  end
+  
+if os().to_s == 'windows'
+  username = ENV['USER']
+home_folder = "/home/"+username
+end
+settings = YAML.load_file 'vagrant.yml'
 dev_uid = Process.uid
+
 gradle_folder = home_folder+"/.gradle"
 api_src_folder = home_folder+"/api_project"
 web_src_folder = home_folder+"/web_project"
+
+puts api_src_folder
+
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
  
 Vagrant.configure("2") do |config|

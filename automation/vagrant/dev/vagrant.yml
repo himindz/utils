@@ -13,5 +13,5 @@ web_deploy:
   host:  ../../sample_project/frontend
   guest: /var/www/apps/localhost/dist
 gradle_folder:
-  host:  /home/ali/.gradle
+  host:  ../../../../.gradle
 
