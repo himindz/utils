@@ -16,48 +16,74 @@ ADD sudoers /etc/sudoers
 RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
 RUN mkdir -p /var/www/apps/localhost/public
+
+
 RUN apt-get install -y software-properties-common
-RUN apt-get remove -y  openssh-client openssh-server
-
-
 RUN add-apt-repository ppa:cwchien/gradle
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
-RUN add-apt-repository ppa:webupd8team/java
-RUN add-apt-repository ppa:chris-lea/node.js
+RUN add-apt-repository -y ppa:webupd8team/java
+RUN apt-get remove -y  openssh-client openssh-server
+
+RUN apt-get update && apt-get install -y \
+                openssh-server \
+                oracle-java8-installer \
+                build-essential \
+                sshpass \
+                zlib1g-dev \
+		zlib1g \
+                zip \
+                unzip \
+                git \
+                curl \
+                bash \
+                nginx \
+                maven \
+                ruby \
+                ruby-dev \
+                gradle \
+		expect \
+		lib32ncurses5 \
+		lib32stdc++6
 
 
 
-RUN apt-get update
-RUN apt-get install -y oracle-java8-installer
 RUN rm -rf /var/cache/oracle-jdk8-installer
+RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash - && apt-get install -y nodejs
 
-RUN apt-get install -y zip unzip git curl bash zlib1g-dev
-RUN apt-get install -y build-essential
-RUN apt-get install -y nginx
-RUN apt-get install -y maven
-RUN apt-get install -y ruby
-RUN apt-get install -y ruby-dev
-RUN apt-get install -y sshpass
-RUN apt-get install -y gradle
-RUN apt-get install -y openssh-server
-RUN apt-get install -y nodejs
-RUN update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
+RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz && tar -xzvf android-sdk_r24.3.3-linux.tgz && \
+    mv android-sdk-linux /usr/local/.
 
-RUN npm install -g xml
-RUN npm install -g yo grunt-cli bower
-RUN npm install -g generator-angular
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+ENV ANDROID_HOME /usr/local/android-sdk-linux
+WORKDIR /usr/local/android-sdk-linux
+ENV PATH $PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools
+
+RUN echo "y" | android update sdk  -u -a -t  1,2,5,24
+RUN echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-22,sys-img-x86_64-android-22
+RUN echo "n" | android create avd --name myandroid22 -t "android-22"
+
+
+RUN npm install -g npm
+RUN npm cache clean  && \
+        npm install -g xml
+RUN npm install -g grunt-cli
+RUN npm install -g bower
+RUN npm install -g generator-angular-fullstack
 
 RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
 RUN gem install --no-rdoc --no-ri  rspec
+RUN gem install --no-rdoc --no-ri watir-webdriver
 RUN gem install --no-rdoc --no-ri ruby-jmeter
 RUN gem install --no-rdoc --no-ri jsonpath
 RUN gem install --no-rdoc --no-ri colorize
 
+USER jenkins
+RUN npm config set prefix '~/.npm-packages'
+ENV PATH $PATH:$HOME/.npm-packages/bin
+RUN npm install -g npm
+npm install wd
 
-
-# Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
-
+USER root
 
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH

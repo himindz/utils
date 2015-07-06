@@ -12,26 +12,47 @@ RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
 RUN mkdir -p /var/www/apps/localhost/public
 
-RUN apt-get remove -y  openssh-client openssh-server
+
 RUN apt-get install -y software-properties-common
-RUN \
-  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-  add-apt-repository -y ppa:webupd8team/java && \
+RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
+RUN add-apt-repository -y ppa:webupd8team/java
 RUN add-apt-repository ppa:chris-lea/node.js
 
+RUN apt-get remove -y  openssh-client openssh-server
 
-RUN apt-get update
-RUN apt-get install -y zip unzip git curl bash zlib1g-dev
-RUN apt-get install -y build-essential
-RUN apt-get install -y nginx
-RUN apt-get install -y sshpass
-RUN apt-get install -y ruby
-RUN apt-get install -y ruby-dev
-RUN apt-get install -y nodejs
-RUN update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
-RUN npm install -g xml
-RUN npm install -g yo grunt-cli bower
-RUN npm install -g generator-angular
+
+
+RUN apt-get update && apt-get install -y \
+                        oracle-java8-installer \
+                        openssh-server \
+                        zip \
+                        unzip \
+                        git \
+                        curl \
+                        bash \
+                        nginx \
+                        build-essential \
+			libssl-dev \
+                        nginx \
+                        sshpass \
+                        zlib1g-dev \
+                        ruby \
+                        ruby-dev 
+
+
+RUN rm -rf /var/cache/oracle-jdk8-installer
+
+RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash - && apt-get install -y nodejs
+
+RUN npm install -g npm
+RUN npm cache clean  && \
+        npm install -g xml
+RUN npm install -g grunt-cli
+RUN npm install -g bower
+RUN npm install -g generator-angular-fullstack
+
+
+
 
 RUN gem install --no-rdoc --no-ri  cucumber -v 1.3.19
 RUN gem install --no-rdoc --no-ri rspec

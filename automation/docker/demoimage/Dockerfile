@@ -10,20 +10,26 @@ ADD sources.list /etc/apt/sources.list
 RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
 RUN mkdir -p /var/www/apps/localhost/public
+
 RUN apt-get install -y software-properties-common
-RUN apt-get remove -y openssh-client openssh-server
-RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-    add-apt-repository -y ppa:webupd8team/java &&
+RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
+RUN add-apt-repository -y ppa:webupd8team/java
 
+RUN apt-get update && apt-get install -y \
+                        oracle-java8-installer \
+                        openssh-server \
+                        zip \
+                        unzip \
+                        git \
+                        curl \
+                        bash \
+                        nginx \
+                        build-essential \
+                        nginx \
+                        sshpass
 
-RUN apt-get update
-RUN apt-get install -y oracle-java8-installer
 RUN rm -rf /var/cache/oracle-jdk8-installer
 
-RUN apt-get install -y zip unzip git curl bash
-RUN apt-get install -y build-essential
-RUN apt-get install -y nginx
-RUN apt-get install -y sshpass
 
 
 
