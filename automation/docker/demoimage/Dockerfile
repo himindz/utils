@@ -1,6 +1,7 @@
 FROM ubuntu:14.04
 MAINTAINER Ali Khan <alikhan@himindz.ie>
-
+ENV TOMCAT_MAJOR 8
+ENV TOMCAT_VERSION 8.0.24
 RUN rm -rf /etc/Dockerfile
 ADD Dockerfile /etc/Dockerfile
 
@@ -31,9 +32,6 @@ RUN apt-get update && apt-get install -y \
 RUN rm -rf /var/cache/oracle-jdk8-installer
 
 
-
-
-
 #Add User jenkins
 RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins && \
     echo "jenkins:password" | chpasswd
@@ -54,8 +52,6 @@ RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
 
 
-ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.0.24
 ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN set -x \
