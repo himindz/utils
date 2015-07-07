@@ -1,6 +1,8 @@
 FROM ubuntu:14.04
 MAINTAINER Ali Khan <alikhan@himindz.ie>
 
+ENV TOMCAT_MAJOR 8
+ENV TOMCAT_VERSION 8.0.24
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
@@ -12,6 +14,10 @@ RUN rm -rf /etc/apt/sources.list
 ADD sources.list /etc/apt/sources.list
 
 ADD sudoers /etc/sudoers
+RUN chmod 640 /etc/sudoers
+
+ENV DEFAULT_PASSWORD LETSSG01
+
 
 RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
@@ -19,12 +25,14 @@ RUN mkdir -p /var/www/apps/localhost/public
 
 #Add User jenkins
 RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
-    echo "jenkins:password" | chpasswd
+    echo "jenkins:$DEFAULT_PASSWORD” | chpasswd
 
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:cwchien/gradle
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
 RUN add-apt-repository -y ppa:webupd8team/java
+RUN add-apt-repository ppa:chris-lea/node.js
+
 RUN apt-get remove -y  openssh-client openssh-server
 
 RUN apt-get update && apt-get install -y \
@@ -52,6 +60,8 @@ RUN apt-get update && apt-get install -y \
 
 
 RUN rm -rf /var/cache/oracle-jdk8-installer
+
+
 RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash - && apt-get install -y nodejs
 
 RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz && tar -xzvf android-sdk_r24.3.3-linux.tgz && \
@@ -114,8 +124,7 @@ ENV TOMCAT_PASS="password"
 RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
 
-ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.0.24
+
 ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN set -x \

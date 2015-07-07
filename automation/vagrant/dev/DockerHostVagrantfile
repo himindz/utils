@@ -1,10 +1,14 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 require 'yaml'
-
 require 'rbconfig'
-home_folder = ENV['HOME']
-  def os
+
+dev_uid = Process.uid
+settings = YAML.load_file 'vagrant.yml'
+guest_home_folder = ENV['HOME']
+host_home_folder = ENV['HOME']
+
+def os
     @os ||= (
       host_os = RbConfig::CONFIG['host_os']
       case host_os
@@ -20,72 +24,60 @@ home_folder = ENV['HOME']
         raise Error::WebDriverError, "unknown os: #{host_os.inspect}"
       end
     )
-  end
-if os().to_s == 'windows'
-  username = ENV['USER']
-  home_folder = "/home/"+username
 end
 
-dev_uid = Process.uid
-settings = YAML.load_file 'vagrant.yml'
-gradle_folder = home_folder+"/.gradle"
-api_src_folder = home_folder+"/api_project"
-web_src_folder = home_folder+"/web_project"
+if os().to_s == 'windows'
+  username = ENV['USER']
+  guest_home_folder = "/home/"+username
+  dev_uid = 1001
+end
+
+host_gradle_folder = host_home_folder+"/.gradle"
+guest_gradle_folder = guest_home_folder+"/.gradle" 
+api_src_folder = guest_home_folder+"/"+settings['api_project']['name']
+web_src_folder = guest_home_folder+"/"+settings['web_project']['name']
 
 $script = <<SCRIPT
 DEV_UID=$1
 USERNAME=$2
 HOME_FOLDER=$3
+DEFAULT_PASSWORD=$4
 echo $DEV_UID
+UID_PARAM=""
+if [ "$DEV_UID" != "0" ]; then
+   UID_PARAM=" --uid $DEV_UID"
+fi
+echo $UID_PARAM 
 #Add developer user
-adduser --quiet --uid $DEV_UID --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME && \
-    echo "$USERNAME:password" | chpasswd
+echo $DEFAULT_PASSWORD
+echo $USERNAME
+
+echo adduser --quiet $UID_PARAM --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME 
+
+echo "$USERNAME:$DEFAULT_PASSWORD"
+    
+    
+adduser --quiet $UID_PARAM --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME
+echo "$USERNAME:$DEFAULT_PASSWORD" | chpasswd
+
 echo "$USERNAME  ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  puts home_folder
-  file_to_disk = File.realpath( "." ).to_s + "/disk3.vdi"
+  file_to_disk = File.realpath( "." ).to_s + "/disk.vdi"
   config.vm.define "dockerhost"
   config.vm.box = "phusion/ubuntu-14.04-amd64"
-
-  config.vm.provider :virtualbox do |vb|
-    puts vb.to_s
-    vb.gui = true
-    if ARGV[0] == "up" && ! File.exist?(file_to_disk) 
-       puts "Creating 50GB disk #{file_to_disk}."
-       vb.customize [
-            'createhd', 
-            '--filename', file_to_disk, 
-            '--format', 'VDI', 
-            '--size', 20000 * 1024 # 20 GB
-            ] 
-       vb.customize [
-            'storageattach', :id, 
-            '--storagectl', 'SATA Controller', 
-            '--port', 1, '--device', 0, 
-            '--type', 'hdd', '--medium', 
-            file_to_disk
-            ]
-    end
-      vb.name = "dockerhost"
-      vb.memory = "2048"
-  end
-  # The following line terminates all ssh connections. Therefore
-  # Vagrant will be forced to reconnect.
-  # That's a workaround to have the docker command in the PATH
-  config.vm.provision "shell", inline:
-    "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
-
-  config.vm.provision "shell", path: "add_new_disk.sh"
   config.vm.provision :shell, inline: "sudo apt-get update"
   config.vm.provision :shell, inline: "sudo apt-get -y install lvm2"
   config.vm.provision "docker"
+
   config.vm.provision "shell" do |s|
         s.inline = $script
-        s.args = [dev_uid,settings['user']['name'],home_folder]
+        s.args = [dev_uid,settings['user']['name'],guest_home_folder,settings['user']['default_password']]
   end
-
+  config.vm.provision "shell", inline:
+    "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
+  
   config.vm.network "forwarded_port",
     guest: 8080, host: 18080
 
@@ -101,13 +93,37 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port",
     guest: 2222, host: 12222
 
-  config.vm.synced_folder settings['api_src_dir']['host'], api_src_folder,
+ 
+  
+  
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "dockerhost"
+    vb.memory = "2048"
+    if ARGV[0] == "up" && ! File.exist?(file_to_disk)
+       puts "Creating 20GB disk #{file_to_disk}."
+       vb.customize [
+            'createhd',
+            '--filename', file_to_disk,
+            '--format', 'VDI',
+            '--size', 200 * 1024 # 20 GB
+            ]
+       vb.customize [
+            'storageattach', :id,
+            '--storagectl', 'SATA Controller',
+            '--port', 1, '--device', 0,
+            '--type', 'hdd', '--medium',
+            file_to_disk
+            ]
+    end
+  end
+  config.vm.provision "shell", path: "add_new_disk.sh"
+
+  config.vm.synced_folder settings['api_project']['src_folder'], api_src_folder,
     owner: dev_uid
-  config.vm.synced_folder settings['web_src_dir']['host'], web_src_folder,
+  config.vm.synced_folder settings['web_project']['src_folder'], web_src_folder,
     owner: dev_uid
-  config.vm.synced_folder settings['web_deploy']['host'], settings['web_deploy']['guest'],
+  config.vm.synced_folder settings['web_project']['src_folder'], settings['web_project']['document_root'],
     owner: dev_uid
-  config.vm.synced_folder settings['gradle_folder']['host'], gradle_folder,
+  config.vm.synced_folder host_gradle_folder, guest_gradle_folder,
     owner: dev_uid
 end
-
