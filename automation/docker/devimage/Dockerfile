@@ -17,6 +17,9 @@ RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
 RUN mkdir -p /var/www/apps/localhost/public
 
+#Add User jenkins
+RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
+    echo "jenkins:password" | chpasswd
 
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:cwchien/gradle
@@ -43,7 +46,8 @@ RUN apt-get update && apt-get install -y \
                 gradle \
 		expect \
 		lib32ncurses5 \
-		lib32stdc++6
+		lib32stdc++6 \
+		firefox
 
 
 
@@ -58,9 +62,10 @@ ENV ANDROID_HOME /usr/local/android-sdk-linux
 WORKDIR /usr/local/android-sdk-linux
 ENV PATH $PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools
 
-RUN echo "y" | android update sdk  -u -a -t  1,2,5,24
-RUN echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-22,sys-img-x86_64-android-22
-RUN echo "n" | android create avd --name myandroid22 -t "android-22"
+RUN echo "y" | android update sdk  -u -a -t  1
+RUN echo "y" | android update sdk  -u -a -t 2,5,24,67,68
+#RUN echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-22,sys-img-x86_64-android-22
+RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "default/armeabi-v7a"
 
 
 RUN npm install -g npm
@@ -69,6 +74,7 @@ RUN npm cache clean  && \
 RUN npm install -g grunt-cli
 RUN npm install -g bower
 RUN npm install -g generator-angular-fullstack
+RUN npm install -g wd
 
 RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
 RUN gem install --no-rdoc --no-ri  rspec
@@ -78,10 +84,9 @@ RUN gem install --no-rdoc --no-ri jsonpath
 RUN gem install --no-rdoc --no-ri colorize
 
 USER jenkins
-RUN npm config set prefix '~/.npm-packages'
-ENV PATH $PATH:$HOME/.npm-packages/bin
-RUN npm install -g npm
-npm install wd
+RUN npm config set prefix '/home/jenkins/.npm-packages'
+ENV PATH $PATH:/home/jenkins/.npm-packages/bin
+RUN npm install -g appium
 
 USER root
 
@@ -93,15 +98,14 @@ RUN mkdir /var/run/sshd && \
     /usr/sbin/sshd
 
 
-#Add User jenkins
-RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
-    echo "jenkins:password" | chpasswd
 # Install Grails
 WORKDIR /usr/lib/jvm
 RUN wget http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-2.4.4.zip && \
     unzip grails-2.4.4.zip && \
     rm -rf grails-2.4.4.zip && \
     ln -s grails-2.4.4 grails
+
+
 
 ENV GRAILS_HOME /usr/lib/jvm/grails
 ENV PATH $GRAILS_HOME/bin:$PATH
@@ -111,7 +115,7 @@ RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
 
 ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.0.22
+ENV TOMCAT_VERSION 8.0.24
 ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN set -x \

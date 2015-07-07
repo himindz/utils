@@ -51,6 +51,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider :virtualbox do |vb|
     puts vb.to_s
+    vb.gui = true
     if ARGV[0] == "up" && ! File.exist?(file_to_disk) 
        puts "Creating 50GB disk #{file_to_disk}."
        vb.customize [
