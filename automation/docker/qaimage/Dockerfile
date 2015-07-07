@@ -47,13 +47,28 @@ RUN apt-get update && apt-get install -y \
                         zlib1g-dev \
                         ruby \
                         ruby-dev \
-			lib32ncurses5 \			lib32stdc++6 \			firefox
+			lib32ncurses5 \
+			lib32stdc++6 \
+			firefox
 
 RUN rm -rf /var/cache/oracle-jdk8-installer
 
 RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash - && apt-get install -y nodejs
 
-RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz && tar -xzvf android-sdk_r24.3.3-linux.tgz && \    mv android-sdk-linux /usr/local/.ENV JAVA_HOME /usr/lib/jvm/java-8-oracleENV ANDROID_HOME /usr/local/android-sdk-linuxWORKDIR /usr/local/android-sdk-linuxENV PATH $PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-toolsRUN echo "y" | android update sdk  -u -a -t  1RUN echo "y" | android update sdk  -u -a -t 2,5,24,67,68#RUN echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-22,sys-img-x86_64-android-22RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "default/armeabi-v7a"
+RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz && tar -xzvf android-sdk_r24.3.3-linux.tgz && \
+    mv android-sdk-linux /usr/local/.
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+ENV ANDROID_HOME /usr/local/android-sdk-linux
+WORKDIR /usr/local/android-sdk-linux
+ENV PATH $PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools
+
+RUN echo "y" | android update sdk  -u -a -t  1
+RUN echo "y" | android update sdk  -u -a -t 2,5,24,67,68
+#RUN echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-22,sys-img-x86_64-android-22
+RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "default/armeabi-v7a"
+
+
 
 RUN npm install -g npm
 RUN npm cache clean  && \
@@ -77,7 +92,14 @@ RUN gem install --no-rdoc --no-ri colorize
 RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins && \
     echo "jenkins:password" | chpasswd
 
-USER jenkinsRUN npm config set prefix '/home/jenkins/.npm-packages'ENV PATH $PATH:/home/jenkins/.npm-packages/binRUN npm install -g appiumUSER root#Install and Start SSH server
+USER jenkins
+RUN npm config set prefix '/home/jenkins/.npm-packages'
+ENV PATH $PATH:/home/jenkins/.npm-packages/bin
+RUN npm install -g appium
+
+USER root
+
+#Install and Start SSH server
 RUN mkdir /var/run/sshd && \
     /usr/sbin/sshd
 
