@@ -64,13 +64,26 @@ echo "$USERNAME  ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
 SCRIPT
 
 Vagrant.configure("2") do |config|
+  config.vm.box = "box-cutter/ubuntu1404-desktop"
+  
+  config.vm.synced_folder settings['api_project']['src_folder'], api_src_folder,
+    owner: dev_uid
+  config.vm.synced_folder settings['web_project']['src_folder'], web_src_folder,
+    owner: dev_uid
+  config.vm.synced_folder settings['web_project']['src_folder'], settings['web_project']['document_root'],
+    owner: dev_uid
+  config.vm.synced_folder host_gradle_folder, guest_gradle_folder,
+    owner: dev_uid
+  
   file_to_disk = File.realpath( "." ).to_s + "/disk.vdi"
-  config.vm.define "dockerhost"
-  config.vm.box = "phusion/ubuntu-14.04-amd64"
+  config.vm.define "dockerhostvm"
+  
+
   config.vm.provision :shell, inline: "sudo apt-get update"
   config.vm.provision :shell, inline: "sudo apt-get -y install lvm2"
   config.vm.provision "docker"
-
+  
+  config.vm.provision "shell", path: "add_new_disk.sh"
   config.vm.provision "shell" do |s|
         s.inline = $script
         s.args = [dev_uid,settings['user']['name'],guest_home_folder,settings['user']['default_password']]
@@ -78,27 +91,32 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline:
     "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
   
+  config.ssh.forward_agent = true
+  config.ssh.forward_x11 = true
+
   config.vm.network "forwarded_port",
     guest: 8080, host: 18080
-
   config.vm.network "forwarded_port",
     guest: 8000, host: 8000
-  
   config.vm.network "forwarded_port",
     guest: 80, host: 8888
-
   config.vm.network "forwarded_port",
     guest: 443, host: 9443
-
   config.vm.network "forwarded_port",
     guest: 2222, host: 12222
-
- 
-  
   
   config.vm.provider :virtualbox do |vb|
-    vb.name = "dockerhost"
+    vb.name = "dockerhostvm"
+    
     vb.memory = "2048"
+    vb.customize ["modifyvm", :id, "--cpus", "2"]
+    vb.customize ["modifyvm", :id, "--graphicscontroller", "vboxvga"]
+    vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+    vb.customize ["modifyvm", :id, "--vram", "128"]
+    vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
+    vb.gui = true
+    
     if ARGV[0] == "up" && ! File.exist?(file_to_disk)
        puts "Creating 20GB disk #{file_to_disk}."
        vb.customize [
@@ -116,14 +134,6 @@ Vagrant.configure("2") do |config|
             ]
     end
   end
-  config.vm.provision "shell", path: "add_new_disk.sh"
 
-  config.vm.synced_folder settings['api_project']['src_folder'], api_src_folder,
-    owner: dev_uid
-  config.vm.synced_folder settings['web_project']['src_folder'], web_src_folder,
-    owner: dev_uid
-  config.vm.synced_folder settings['web_project']['src_folder'], settings['web_project']['document_root'],
-    owner: dev_uid
-  config.vm.synced_folder host_gradle_folder, guest_gradle_folder,
-    owner: dev_uid
+  
 end

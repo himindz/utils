@@ -2,9 +2,9 @@ user:
   name : ali
   default_password: password
 api_project:
-  name : fluxcommon
-  src_folder: ../../sample_project/backend
+  name : java-backend
+  src_folder: ../../sample_project/java-backend
 web_project:
-  name : fluxcity
+  name : frontend
   src_folder: ../../sample_project/frontend
   document_root : /var/www/apps/localhost/dist

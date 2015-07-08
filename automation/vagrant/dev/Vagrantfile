@@ -3,6 +3,8 @@
 require 'yaml'
 require 'rbconfig'
 home_folder = ENV['HOME']
+dispaly = ENV['DISPLAY']
+puts "Display ="+display.to_s
 def os
     @os ||= (
       host_os = RbConfig::CONFIG['host_os']
@@ -25,12 +27,16 @@ if os().to_s == 'windows'
   username = ENV['USER']
   home_folder = "/home/"+username
 end
+
+xwinvols = ENV['HOME']+"/.Xauthority:"+home_folder+"/.Xauthority"
+xwintmp = "/tmp/.X11-unix:/tmp/.X11-unix"
 settings = YAML.load_file 'vagrant.yml'
 dev_uid = Process.uid
 gradle_folder = home_folder+"/.gradle"
 api_src_folder = home_folder+"/"+settings['api_project']['name']
 web_src_folder = home_folder+"/"+settings['web_project']['name']
-
+puts xwinvols
+puts xwintmp
 
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
 
@@ -39,12 +45,12 @@ Vagrant.configure("2") do |config|
     a.vm.provider "docker" do |d|
       d.build_dir = "../../docker/devimage"
       d.force_host_vm = true
-      d.env = {"DEV_UID"=>dev_uid,"USERNAME"=>settings['user']['name'],"HOME_FOLDER"=>home_folder,"DEFAULT_PASSWORD"=>settings['user']['default_password']}
+      d.env = {"DEV_UID"=>dev_uid,"USERNAME"=>settings['user']['name'],"HOME_FOLDER"=>home_folder,"DEFAULT_PASSWORD"=>settings['user']['default_password'],"DISPLAY"=>":0"}
       d.build_args = ["-t=devimage"]
       d.ports = ["8080:8080","8000:8000","80:80","443:443","2222:22"]
-      d.volumes = [gradle_folder+":"+gradle_folder,api_src_folder+":"+api_src_folder,web_src_folder+":"+web_src_folder,settings['web_project']['document_root']+":"+settings['web_project']['document_root']]
+      d.volumes = [gradle_folder+":"+gradle_folder,api_src_folder+":"+api_src_folder,web_src_folder+":"+web_src_folder,settings['web_project']['document_root']+":"+settings['web_project']['document_root'],xwinvols,xwintmp]
       d.cmd = ["/run.sh"]
-      d.vagrant_machine = "dockerhost"
+      d.vagrant_machine = "dockerhostvm"
       d.vagrant_vagrantfile = "./DockerHostVagrantfile"
     end
   end

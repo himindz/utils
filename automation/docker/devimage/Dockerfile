@@ -7,7 +7,7 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-
+ENV DISPLAY :0
 RUN rm -rf /etc/Dockerfile
 ADD Dockerfile /etc/Dockerfile
 RUN rm -rf /etc/apt/sources.list
@@ -25,7 +25,7 @@ RUN mkdir -p /var/www/apps/localhost/public
 
 #Add User jenkins
 RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
-    echo "jenkins:$DEFAULT_PASSWORD” | chpasswd
+    echo "jenkins:$DEFAULT_PASSWORD" | chpasswd
 
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:cwchien/gradle

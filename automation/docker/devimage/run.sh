@@ -17,7 +17,7 @@ ORIG_HOME=$(echo $ORIGPASSWD | cut -f6 -d:)
 
 #sed -i -e "s/:$ORIG_UID:$ORIG_GID:/:$DEV_UID:$ORIG_GID:/" /etc/passwd
 chown -R ${DEV_UID} ${ORIG_HOME}
-
+chown -R ${DEV_UID} /tmp/.X11-unix
 if [ ! -f /.tomcat_admin_created ]; then
     /create_tomcat_admin_user.sh
 fi

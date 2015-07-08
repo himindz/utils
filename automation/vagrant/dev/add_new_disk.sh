@@ -17,8 +17,8 @@ w
 EOF
 
 pvcreate /dev/sdb1
-vgextend vg0 /dev/sdb1
-lvextend -l +100%FREE /dev/vg0/root
-resize2fs /dev/vg0/root
+vgextend vagrant-vg /dev/sdb1
+lvextend -l +100%FREE /dev/vagrant-vg/root
+resize2fs /dev/vagrant-vg/root
 
 date > /etc/disk_added_date
