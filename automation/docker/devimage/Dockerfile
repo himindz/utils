@@ -16,7 +16,7 @@ ADD sources.list /etc/apt/sources.list
 ADD sudoers /etc/sudoers
 RUN chmod 640 /etc/sudoers
 
-ENV DEFAULT_PASSWORD LETSSG01
+ENV DEFAULT_PASSWORD password
 
 
 RUN mkdir /var/log/localhost
@@ -78,6 +78,8 @@ RUN echo "y" | android update sdk  -u -a -t 2,5,24,67,68
 RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "default/armeabi-v7a"
 
 
+WORKDIR /root
+
 RUN npm install -g npm
 RUN npm cache clean  && \
         npm install -g xml
@@ -92,14 +94,18 @@ RUN gem install --no-rdoc --no-ri watir-webdriver
 RUN gem install --no-rdoc --no-ri ruby-jmeter
 RUN gem install --no-rdoc --no-ri jsonpath
 RUN gem install --no-rdoc --no-ri colorize
+RUN gem install --no-rdoc --no-ri page-object
+
+
+RUN chown -R root.jenkins /usr/lib/node_modules
+RUN chmod 775 /usr/lib/node_modules
 
 USER jenkins
-RUN npm config set prefix '/home/jenkins/.npm-packages'
-ENV PATH $PATH:/home/jenkins/.npm-packages/bin
+WORKDIR /home/jenkins
 RUN npm install -g appium
 
 USER root
-
+WORKDIR /root
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 
@@ -134,6 +140,7 @@ RUN set -x \
 	&& rm bin/*.bat \
 	&& rm tomcat.tar.gz*
 
+WORKDIR /root
 RUN git clone https://github.com/ali-himindz/cucumber-junit.git
 WORKDIR cucumber-junit
 RUN npm install

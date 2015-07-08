@@ -28,7 +28,9 @@ if os().to_s == 'windows'
   home_folder = "/home/"+username
 end
 
-xwinvols = ENV['HOME']+"/.Xauthority:"+home_folder+"/.Xauthority"
+#xwinvols = ENV['HOME']+"/.Xauthority:"+home_folder+"/.Xauthority"
+xwinvols = ENV['HOME']+"/.Xauthority:/home/jenkins/.Xauthority"
+
 xwintmp = "/tmp/.X11-unix:/tmp/.X11-unix"
 settings = YAML.load_file 'vagrant.yml'
 dev_uid = Process.uid
