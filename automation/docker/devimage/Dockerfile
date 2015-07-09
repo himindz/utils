@@ -35,26 +35,36 @@ RUN add-apt-repository ppa:chris-lea/node.js
 
 RUN apt-get remove -y  openssh-client openssh-server
 
-RUN apt-get update && apt-get install -y \
+RUN apt-key update && apt-get update && apt-get install -y --force-yes \
                 openssh-server \
-                oracle-java8-installer \
-                build-essential \
-                sshpass \
-                zlib1g-dev \
-				zlib1g \
-                zip \
-                unzip \
-                git \
-                curl \
+                oracle-java8-installer 
+        
+RUN apt-get install -y --force-yes \
                 bash \
-                nginx \
-                maven \
-                ruby \
-                ruby-dev \
-                gradle \
-				expect \
-				lib32ncurses5 \
+                build-essential \
+                lib32ncurses5 \
 				lib32stdc++6 \
+				curl \
+                expect \ 
+                sshpass \
+                unzip \
+                zip 
+                
+RUN apt-get install -y --force-yes \                
+                git \
+                maven \
+                gradle 
+				
+RUN apt-get install -y --force-yes \                
+                zlib1g-dev \
+				zlib1g 
+
+RUN apt-get install -y --force-yes \                
+                ruby \
+                ruby-dev 
+
+RUN apt-get install -y --force-yes \                
+                nginx \
 				firefox
 
 RUN rm -rf /var/cache/oracle-jdk8-installer
@@ -112,7 +122,8 @@ RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
 
 RUN npm config set prefix '/usr/local/lib/node_modules'
 ENV PATH $PATH:/usr/local/lib/node_modules/bin
-RUN npm install -g appium
+
+RUN npm cache clean && npm install -g appium
 #RUN npm install -g appium
 
 USER root
