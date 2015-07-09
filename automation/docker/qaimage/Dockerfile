@@ -55,8 +55,11 @@ RUN rm -rf /var/cache/oracle-jdk8-installer
 
 RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash - && apt-get install -y nodejs
 
-RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz && tar -xzvf android-sdk_r24.3.3-linux.tgz && \
-    mv android-sdk-linux /usr/local/.
+WORKDIR /usr/local/
+RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz 
+RUN tar -xzvf android-sdk_r24.3.3-linux.tgz 
+RUN chown -R root.jenkins android-sdk-linux
+RUN rm -Rf android-sdk_r24.3.3-linux.tgz
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 ENV ANDROID_HOME /usr/local/android-sdk-linux
