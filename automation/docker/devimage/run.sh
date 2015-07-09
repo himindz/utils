@@ -2,7 +2,14 @@
 
 echo $DEV_UID
 #Add developer user
-adduser --quiet --uid $DEV_UID --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME && \
+
+UID_PARAM=""
+if [ "$DEV_UID" != "0" ]; then
+   UID_PARAM=" --uid $DEV_UID"
+fi
+
+
+adduser --quiet $UID_PARAM --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME && \
     echo "$USERNAME:password" | chpasswd
 echo "$USERNAME  ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
 
