@@ -101,7 +101,10 @@ RUN chmod -R g+rwx /usr/local/lib/node_modules
 
 USER jenkins
 WORKDIR /home/jenkins
-RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin >>.bashrc
+RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
+RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
+RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
+
 RUN npm config set prefix '/usr/local/lib/node_modules'
 ENV PATH $PATH:/usr/local/lib/node_modules/bin
 RUN npm install -g appium
@@ -111,6 +114,9 @@ USER root
 WORKDIR /root
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
+RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
+RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
+RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
 
 #Install and Start SSH server
 RUN mkdir /var/run/sshd && \

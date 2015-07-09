@@ -15,7 +15,7 @@ RUN rm -rf /etc/apt/sources.list
 ADD sources.list /etc/apt/sources.list
 
 ADD sudoers /etc/sudoers
-RUN chown 600 /etc/sudoers
+RUN chmod 640 /etc/sudoers
 
 RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
@@ -70,6 +70,10 @@ RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "def
 
 
 WORKDIR /root
+RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
+RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
+RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
+
 RUN npm install -g npm
 RUN npm cache clean  && \
         npm install -g xml
@@ -100,7 +104,10 @@ RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --
 
 USER jenkins
 WORKDIR /home/jenkins
-RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin >>.bashrc
+RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
+RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
+RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
+
 RUN npm config set prefix '/usr/local/lib/node_modules'
 ENV PATH $PATH:/usr/local/lib/node_modules/bin
 RUN npm install -g appium
@@ -115,8 +122,13 @@ RUN mkdir /var/run/sshd && \
 #Add User developer
 RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/developer --gecos "User" developer && \
     echo "developer:password" | chpasswd
+    
+RUN usermod -g jenkins developer    
 
-
+WORKDIR /home/developer
+RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
+RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
+RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
 # Define commonly used JAVA_HOME variable
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
