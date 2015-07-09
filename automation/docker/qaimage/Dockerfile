@@ -21,6 +21,15 @@ RUN mkdir /var/log/localhost
 RUN mkdir -p /var/www/apps/localhost/dist
 RUN mkdir -p /var/www/apps/localhost/public
 
+#Add User jenkins
+RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins && \
+    echo "jenkins:password" | chpasswd
+#Add User developer
+RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/developer --gecos "User" developer && \
+    echo "developer:password" | chpasswd
+RUN usermod -g jenkins developer    
+
+
 
 RUN apt-get install -y software-properties-common
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
@@ -41,15 +50,15 @@ RUN apt-get update && apt-get install -y \
                         bash \
                         nginx \
                         build-essential \
-			libssl-dev \
+						libssl-dev \
                         nginx \
                         sshpass \
                         zlib1g-dev \
                         ruby \
                         ruby-dev \
-			lib32ncurses5 \
-			lib32stdc++6 \
-			firefox
+						lib32ncurses5 \
+						lib32stdc++6 \
+						firefox
 
 RUN rm -rf /var/cache/oracle-jdk8-installer
 
@@ -101,9 +110,6 @@ RUN gem install --no-rdoc --no-ri page-object
 
 
 
-#Add User jenkins
-RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins && \
-    echo "jenkins:password" | chpasswd
 
 USER jenkins
 WORKDIR /home/jenkins
@@ -122,11 +128,6 @@ RUN mkdir /var/run/sshd && \
     /usr/sbin/sshd
 
 
-#Add User developer
-RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/developer --gecos "User" developer && \
-    echo "developer:password" | chpasswd
-    
-RUN usermod -g jenkins developer    
 
 WORKDIR /home/developer
 RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
