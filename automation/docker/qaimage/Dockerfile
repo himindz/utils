@@ -80,7 +80,12 @@ RUN npm install -g generator-angular-fullstack
 
 
 
-RUN gem install --no-rdoc --no-ri  cucumber -v 1.3.19
+RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
+RUN gem install --no-rdoc --no-ri appium_lib
+RUN gem install --no-rdoc --no-ri nokogiri
+RUN gem install --no-rdoc --no-ri nokogiri-plist
+RUN gem install --no-rdoc --no-ri net-ssh
+RUN gem install --no-rdoc --no-ri net-scp
 RUN gem install --no-rdoc --no-ri rspec
 RUN gem install --no-rdoc --no-ri ruby-jmeter
 RUN gem install --no-rdoc --no-ri  jsonpath
@@ -95,8 +100,9 @@ RUN adduser --quiet --disabled-password -shell /bin/bash --home /home/jenkins --
 
 USER jenkins
 WORKDIR /home/jenkins
-RUN npm config set prefix '/home/jenkins/.npm-packages'
-ENV PATH $PATH:/home/jenkins/.npm-packages/bin
+RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin >>.bashrc
+RUN npm config set prefix '/usr/local/lib/node_modules'
+ENV PATH $PATH:/usr/local/lib/node_modules/bin
 RUN npm install -g appium
 
 USER root

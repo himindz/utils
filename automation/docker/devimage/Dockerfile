@@ -60,6 +60,11 @@ RUN apt-get update && apt-get install -y \
 RUN rm -rf /var/cache/oracle-jdk8-installer
 
 RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
+RUN gem install --no-rdoc --no-ri appium_lib
+RUN gem install --no-rdoc --no-ri nokogiri
+RUN gem install --no-rdoc --no-ri nokogiri-plist
+RUN gem install --no-rdoc --no-ri net-ssh
+RUN gem install --no-rdoc --no-ri net-scp
 RUN gem install --no-rdoc --no-ri rspec
 RUN gem install --no-rdoc --no-ri watir-webdriver
 RUN gem install --no-rdoc --no-ri ruby-jmeter
