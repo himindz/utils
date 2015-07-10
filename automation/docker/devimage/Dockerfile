@@ -9,8 +9,8 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 RUN rm -rf /etc/Dockerfile
 ADD Dockerfile /etc/Dockerfile
-RUN rm -rf /etc/apt/sources.list
-ADD sources.list /etc/apt/sources.list
+#RUN rm -rf /etc/apt/sources.list
+#ADD sources.list /etc/apt/sources.list
 
 ADD sudoers /etc/sudoers
 RUN chmod 640 /etc/sudoers
