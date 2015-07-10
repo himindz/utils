@@ -7,7 +7,6 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-ENV DISPLAY :0
 RUN rm -rf /etc/Dockerfile
 ADD Dockerfile /etc/Dockerfile
 RUN rm -rf /etc/apt/sources.list
@@ -43,8 +42,8 @@ RUN apt-get install -y --force-yes \
                 bash \
                 build-essential \
                 lib32ncurses5 \
-				lib32stdc++6 \
-				curl \
+	        lib32stdc++6 \
+	        curl \
                 expect \ 
                 sshpass \
                 unzip \
@@ -65,7 +64,7 @@ RUN apt-get install -y --force-yes \
 
 RUN apt-get install -y --force-yes \                
                 nginx \
-				firefox
+	        firefox
 
 RUN rm -rf /var/cache/oracle-jdk8-installer
 

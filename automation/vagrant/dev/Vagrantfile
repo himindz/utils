@@ -46,6 +46,7 @@ ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
 Vagrant.configure("2") do |config|
   config.vm.define "devimage" do |a|
     a.vm.provider "docker" do |d|
+      puts "Creating docker Image for provider "+d.to_s
       d.build_dir = "../../docker/devimage"
       d.force_host_vm = true
       d.env = {"DEV_UID"=>dev_uid,"USERNAME"=>settings['user']['name'],"HOME_FOLDER"=>home_folder,"DEFAULT_PASSWORD"=>settings['user']['default_password'],"DISPLAY"=>":0"}
