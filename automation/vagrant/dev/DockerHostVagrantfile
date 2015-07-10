@@ -61,11 +61,13 @@ echo "$USERNAME  ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
 SCRIPT
 
 Vagrant.configure("2") do |config|
+  puts "Creating dockerhostvm in virtualbox"
   config.vm.box = "box-cutter/ubuntu1404-desktop"
   config.vm.define "dockerhostvm"
   file_to_disk = File.realpath( "." ).to_s + "/disk.vdi"
   
   config.vm.provider :virtualbox do |vb|
+    puts "Customizing dockerhost vm "+vb.t_s
     vb.name = "dockerhostvm"
     vb.memory = "2048"
     vb.customize ["modifyvm", :id, "--cpus", "2"]
