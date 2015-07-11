@@ -25,7 +25,7 @@ RUN mkdir -p /var/www/apps/localhost/public
 #Add User jenkins
 RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
     echo "jenkins:$DEFAULT_PASSWORD" | chpasswd
-RUN echo export DISPLAY=:0" >>/home/jenkins/.bashrc
+RUN echo "export DISPLAY=:0" >>/home/jenkins/.bashrc
 
 
 RUN apt-get install -y software-properties-common
