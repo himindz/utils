@@ -17,11 +17,12 @@ export ORIGPASSWD=$(cat /etc/passwd | grep $USERNAME)
 
 export DEV_UID=${DEV_UID:=$ORIG_UID}
 
-
+echo #!/bin/bash >$HOME_FOLDER/.bashrc
 echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>$HOME_FOLDER/.bashrc
 echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> $HOME_FOLDER/.bashrc
 echo export ANDROID_HOME=/usr/local/android-sdk-linux >>$HOME_FOLDER/.bashrc
-
+echo export DISPLAY=:0 >>$HOME_FOLDER/.bashrc
+chmod 755 $HOME_FOLDER/.bashrc
 ORIG_HOME=$(echo $ORIGPASSWD | cut -f6 -d:)
 
 chown -R ${DEV_UID} ${ORIG_HOME}

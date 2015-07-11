@@ -25,50 +25,59 @@ RUN mkdir -p /var/www/apps/localhost/public
 #Add User jenkins
 RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
     echo "jenkins:$DEFAULT_PASSWORD" | chpasswd
+RUN echo export DISPLAY=:0" >>/home/jenkins/.bashrc
+
 
 RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:cwchien/gradle
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
 RUN add-apt-repository -y ppa:webupd8team/java
-RUN add-apt-repository ppa:chris-lea/node.js
+RUN add-apt-repository ppa:cwchien/gradle
+#RUN add-apt-repository ppa:chris-lea/node.js
 
 RUN apt-get remove -y  openssh-client openssh-server
 
+
+################# Install Java & SSH ######################
 RUN apt-key update && apt-get update && apt-get install -y --force-yes \
                 openssh-server \
                 oracle-java8-installer 
-        
+
+RUN rm -rf /var/cache/oracle-jdk8-installer
+                
+#Start SSH server
+RUN mkdir /var/run/sshd && \
+    /usr/sbin/sshd
+
+
+################ Install build tools and 32 bit libs for android ##########        
 RUN apt-get install -y --force-yes \
-                bash \
                 build-essential \
                 lib32ncurses5 \
-	        lib32stdc++6 \
-	        curl \
+	        	lib32stdc++6 
+
+				
+################ Install some tools	 ##############       	
+RUN apt-get install -y --force-yes \
+				bash \
+				wget \
+				curl \
                 expect \ 
                 sshpass \
                 unzip \
                 zip 
-                
-RUN apt-get install -y --force-yes \                
-                git \
-                maven \
-                gradle 
-				
-RUN apt-get install -y --force-yes \                
-                zlib1g-dev \
-				zlib1g 
 
+############### Install zlib ################
+USER root
+RUN apt-get install -y --force-yes \                
+                zlib1g \
+                zlib1g-dev 
+                
+################ Install Ruby #################################
 RUN apt-get install -y --force-yes \                
                 ruby \
                 ruby-dev 
 
-RUN apt-get install -y --force-yes \                
-                nginx \
-	        firefox
-
-RUN rm -rf /var/cache/oracle-jdk8-installer
-
-RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
+############# Install gems ###################################
 RUN gem install --no-rdoc --no-ri appium_lib
 RUN gem install --no-rdoc --no-ri nokogiri
 RUN gem install --no-rdoc --no-ri nokogiri-plist
@@ -80,75 +89,72 @@ RUN gem install --no-rdoc --no-ri ruby-jmeter
 RUN gem install --no-rdoc --no-ri jsonpath
 RUN gem install --no-rdoc --no-ri colorize
 RUN gem install --no-rdoc --no-ri page-object
+RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
+                
+                                
+################# Install build tools #######################
+USER root
+RUN apt-get install -y --force-yes \                
+                git \
+                maven \
+                gradle 
+                
+
+				 
 
 
-WORKDIR /usr/local/
-RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz 
-RUN tar -xzvf android-sdk_r24.3.3-linux.tgz 
-RUN chown -R root.jenkins android-sdk-linux
-RUN rm -Rf android-sdk_r24.3.3-linux.tgz
-    
+################# Install nodejs and node packages ########
+USER root
+RUN mkdir /opt/node
+RUN chown -R jenkins.jenkins /opt/node
+RUN chmod -R 775  /opt/node
 
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
-ENV ANDROID_HOME /usr/local/android-sdk-linux
-WORKDIR /usr/local/android-sdk-linux
-ENV PATH $PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools
-
-RUN echo "y" | android update sdk  -u -a -t  1
-RUN echo "y" | android update sdk  -u -a -t 2,5,24,67,68
-RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "default/armeabi-v7a"
-
-
-WORKDIR /root
-RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash - && apt-get install -y nodejs
+USER jenkins
+WORKDIR /home/jenkins
+RUN echo -e "\n" | ruby -e "$(wget -O- https://raw.github.com/Homebrew/linuxbrew/go/install)"
+ENV PATH "/home/jenkins/.linuxbrew/bin:$PATH"
+ENV LD_LIBRARY_PATH "/home/jenkins/.linuxbrew/lib:$LD_LIBRARY_PATH"
+RUN echo export PATH="\$HOME/.linuxbrew/bin:\$PATH" >>.bashrc
+RUN export LD_LIBRARY_PATH="\$HOME/.linuxbrew/lib:\$LD_LIBRARY_PATH">>.bashrc
+RUN echo export PATH=\$PATH:/opt/node/bin >>.bashrc
+ENV PATH $PATH:/opt/node/bin
+RUN brew doctor
+WORKDIR /opt/node
+RUN brew install node
+RUN npm config set prefix '/opt/node'
 RUN npm install -g npm
-RUN npm cache clean  && \
-        npm install -g xml
+RUN npm install -g xml
 RUN npm install -g grunt-cli
+RUN npm install -g appium
 RUN npm install -g bower
 RUN npm install -g generator-angular-fullstack
 RUN npm install -g wd
 
-RUN mkdir -p /usr/local/lib/node_modules
-RUN chown -R root.jenkins /usr/local/lib/node_modules
-RUN chmod -R g+rwx /usr/local/lib/node_modules
-
-USER jenkins
+#################### Install cucumber-junit ###############
 WORKDIR /home/jenkins
-RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
-RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
-RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
+RUN echo export PATH="/usr/bin/cucumber-junit/bin:\$PATH" >>/home/jenkins/.bashrc
+RUN git clone https://github.com/ali-himindz/cucumber-junit.git
+WORKDIR cucumber-junit
+RUN npm install
+USER root
+WORKDIR /home/jenkins
+RUN mv cucumber-junit /usr/bin/.
 
-RUN npm config set prefix '/usr/local/lib/node_modules'
-ENV PATH $PATH:/usr/local/lib/node_modules/bin
 
-RUN npm cache clean && npm install -g appium
-#RUN npm install -g appium
 
+################ Install nginx and firefox #################
+USER root
+RUN apt-get install -y --force-yes \                
+                nginx \
+	        	firefox
+
+
+
+########################## Install tomcat #######################
 USER root
 WORKDIR /root
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
-RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
-RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
-RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
-
-#Install and Start SSH server
-RUN mkdir /var/run/sshd && \
-    /usr/sbin/sshd
-
-
-# Install Grails
-WORKDIR /usr/lib/jvm
-RUN wget http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-2.4.4.zip && \
-    unzip grails-2.4.4.zip && \
-    rm -rf grails-2.4.4.zip && \
-    ln -s grails-2.4.4 grails
-
-
-ENV GRAILS_HOME /usr/lib/jvm/grails
-ENV PATH $GRAILS_HOME/bin:$PATH
-
 ENV TOMCAT_PASS="password"
 RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
@@ -162,12 +168,44 @@ RUN set -x \
 	&& rm bin/*.bat \
 	&& rm tomcat.tar.gz*
 
-WORKDIR /root
-RUN git clone https://github.com/ali-himindz/cucumber-junit.git
-WORKDIR cucumber-junit
-RUN npm install
-WORKDIR ..
-RUN mv cucumber-junit /usr/bin/.
+
+########################## install Grails ########################
+# Install Grails
+WORKDIR /usr/lib/jvm
+RUN wget http://dist.springframework.org.s3.amazonaws.com/release/GRAILS/grails-2.4.4.zip && \
+    unzip grails-2.4.4.zip && \
+    rm -rf grails-2.4.4.zip && \
+    ln -s grails-2.4.4 grails
+ENV GRAILS_HOME /usr/lib/jvm/grails
+ENV PATH $GRAILS_HOME/bin:$PATH
+
+
+########################## install android sdk ########################
+USER root
+WORKDIR /usr/local/
+RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz 
+RUN tar -xzvf android-sdk_r24.3.3-linux.tgz 
+RUN chown -R root.jenkins android-sdk-linux
+RUN rm -Rf android-sdk_r24.3.3-linux.tgz
+    
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+ENV ANDROID_HOME /usr/local/android-sdk-linux
+WORKDIR /usr/local/android-sdk-linux
+ENV PATH $PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools
+RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
+RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
+RUN echo export PATH=\$PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
+
+RUN echo "y" | android update sdk  -u -a -t  1
+RUN echo "y" | android update sdk  -u -a -t 2,5,24,67,68
+RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "default/armeabi-v7a"
+RUN chmod a+x /usr/local/android-sdk-linux/tools/*
+RUN chmod a+x /usr/local/android-sdk-linux/platform-tools/*
+
+
+
+################# Run app ######################
 EXPOSE 8080 8000 80 443
 RUN echo $(grep $(hostname) /etc/hosts | cut -f1) localhost>> /etc/hosts
 
