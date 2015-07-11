@@ -25,7 +25,7 @@ RUN mkdir -p /var/www/apps/localhost/public
 #Add User jenkins
 RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
     echo "jenkins:$DEFAULT_PASSWORD" | chpasswd
-RUN echo "export DISPLAY=:0" >>/home/jenkins/.bashrc
+RUN echo "export DISPLAY=:0" >>/etc/bash.bashrc
 
 
 RUN apt-get install -y software-properties-common
@@ -98,25 +98,22 @@ RUN apt-get install -y --force-yes \
                 git \
                 maven \
                 gradle 
-                
-
-				 
-
 
 ################# Install nodejs and node packages ########
 USER root
 RUN mkdir /opt/node
 RUN chown -R jenkins.jenkins /opt/node
 RUN chmod -R 775  /opt/node
+RUN echo export PATH="\$HOME/.linuxbrew/bin:\$PATH" >>/etc/bash.bashrc
+RUN echo export LD_LIBRARY_PATH="\$HOME/.linuxbrew/lib:\$LD_LIBRARY_PATH">>/etc/bash.bashrc
+RUN echo export PATH=\$PATH:/opt/node/bin >>/etc/bash.bashrc
+RUN echo export PATH="/usr/bin/cucumber-junit/bin:\$PATH" >>/etc/bash.bashrc
 
 USER jenkins
 WORKDIR /home/jenkins
 RUN echo -e "\n" | ruby -e "$(wget -O- https://raw.github.com/Homebrew/linuxbrew/go/install)"
 ENV PATH "/home/jenkins/.linuxbrew/bin:$PATH"
 ENV LD_LIBRARY_PATH "/home/jenkins/.linuxbrew/lib:$LD_LIBRARY_PATH"
-RUN echo export PATH="\$HOME/.linuxbrew/bin:\$PATH" >>.bashrc
-RUN export LD_LIBRARY_PATH="\$HOME/.linuxbrew/lib:\$LD_LIBRARY_PATH">>.bashrc
-RUN echo export PATH=\$PATH:/opt/node/bin >>.bashrc
 ENV PATH $PATH:/opt/node/bin
 RUN brew doctor
 WORKDIR /opt/node
@@ -132,7 +129,6 @@ RUN npm install -g wd
 
 #################### Install cucumber-junit ###############
 WORKDIR /home/jenkins
-RUN echo export PATH="/usr/bin/cucumber-junit/bin:\$PATH" >>/home/jenkins/.bashrc
 RUN git clone https://github.com/ali-himindz/cucumber-junit.git
 WORKDIR cucumber-junit
 RUN npm install
@@ -187,15 +183,15 @@ RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz
 RUN tar -xzvf android-sdk_r24.3.3-linux.tgz 
 RUN chown -R root.jenkins android-sdk-linux
 RUN rm -Rf android-sdk_r24.3.3-linux.tgz
+RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> /etc/bash.bashrc
+RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>/etc/bash.bashrc
+RUN echo export PATH=\$PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>/etc/bash.bashrc
     
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 ENV ANDROID_HOME /usr/local/android-sdk-linux
 WORKDIR /usr/local/android-sdk-linux
 ENV PATH $PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools
-RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> .bashrc
-RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>.bashrc
-RUN echo export PATH=\$PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>.bashrc
 
 RUN echo "y" | android update sdk  -u -a -t  1
 RUN echo "y" | android update sdk  -u -a -t 2,5,24,67,68
@@ -206,7 +202,7 @@ RUN chmod a+x /usr/local/android-sdk-linux/platform-tools/*
 
 
 ################# Run app ######################
-EXPOSE 8080 8000 80 443
+EXPOSE 8080 8000 80 443 4723
 RUN echo $(grep $(hostname) /etc/hosts | cut -f1) localhost>> /etc/hosts
 
 ADD setenv.sh /usr/local/tomcat/bin/setenv.sh
