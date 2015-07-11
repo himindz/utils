@@ -33,7 +33,7 @@ if os().to_s == 'windows'
 end
 
 host_gradle_folder = host_home_folder+"/.gradle"
-guest_gradle_folder = guest_home_folder+"/.gradle" 
+guest_gradle_folder = guest_home_folder+"/.gradle"
 api_src_folder = guest_home_folder+"/"+settings['api_project']['name']
 web_src_folder = guest_home_folder+"/"+settings['web_project']['name']
 
@@ -47,12 +47,12 @@ UID_PARAM=""
 if [ "$DEV_UID" != "0" ]; then
    UID_PARAM=" --uid $DEV_UID"
 fi
-echo $UID_PARAM 
+echo $UID_PARAM
 #Add developer user
 echo $DEFAULT_PASSWORD
 echo $USERNAME
 
-echo adduser --quiet $UID_PARAM --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME 
+echo adduser --quiet $UID_PARAM --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME
 echo "$USERNAME:$DEFAULT_PASSWORD"
 adduser --quiet $UID_PARAM --disabled-password -shell /bin/bash --home $HOME_FOLDER --gecos "User" $USERNAME
 echo "$USERNAME:$DEFAULT_PASSWORD" | chpasswd
@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "box-cutter/ubuntu1404-desktop"
   config.vm.define "dockerhostvm"
   file_to_disk = File.realpath( "." ).to_s + "/disk.vdi"
-  
+
   config.vm.provider :virtualbox do |vb|
     puts "Customizing dockerhost vm "+vb.to_s
     vb.name = "dockerhostvm"
@@ -78,7 +78,7 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.gui = true
-    if ARGV[0] == "up" && ! File.exist?(file_to_disk) 
+    if ARGV[0] == "up" && ! File.exist?(file_to_disk)
        puts "Creating 20GB disk #{file_to_disk}."
        vb.customize [
             'createhd',
@@ -95,8 +95,8 @@ Vagrant.configure("2") do |config|
             ]
     end
   end
-  
-  
+
+
   config.vm.synced_folder settings['api_project']['src_folder'], api_src_folder,
     owner: dev_uid
   config.vm.synced_folder settings['web_project']['src_folder'], web_src_folder,
@@ -105,14 +105,14 @@ Vagrant.configure("2") do |config|
     owner: dev_uid
   config.vm.synced_folder host_gradle_folder, guest_gradle_folder,
     owner: dev_uid
-  
+
  config.vm.provision "shell", inline:
     "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
- 
- config.vm.provision :shell, inline: "echo export DISPLAY=:0 >>/home/vagrant/.bashrc"
- config.vm.provision :shell, inline: "echo xhost + >>/home/vagrant/.bashrc"
- 
-    
+
+ #config.vm.provision :shell, inline: "echo export DISPLAY=:0 >>/home/vagrant/.bashrc"
+ #config.vm.provision :shell, inline: "echo xhost + >>/home/vagrant/.bashrc"
+
+
   config.vm.provision :shell, inline: "sudo apt-get update"
   config.vm.provision :shell, inline: "sudo apt-get -y install lvm2"
   config.vm.provision "docker"
@@ -135,5 +135,5 @@ Vagrant.configure("2") do |config|
     guest: 443, host: 9443
   config.vm.network "forwarded_port",
     guest: 2222, host: 12222
-  
+
 end
