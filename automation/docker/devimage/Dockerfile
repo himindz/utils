@@ -23,9 +23,15 @@ RUN mkdir -p /var/www/apps/localhost/dist
 RUN mkdir -p /var/www/apps/localhost/public
 
 #Add User jenkins
-RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
+RUN adduser --quiet --uid 1000 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
     echo "jenkins:$DEFAULT_PASSWORD" | chpasswd
 RUN echo "export DISPLAY=:0" >>/etc/bash.bashrc
+RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>/etc/bash.bashrc
+RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> /etc/bash.bashrc
+RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>/etc/bash.bashrc
+RUN echo export LANG=en_US.UTF-8 >>/etc/bash.bashrc
+RUN echo export LANGUAGE=en_US:en >>/etc/bash.bashrc
+RUN echo export LC_ALL=en_US.UTF-8 >>/etc/bash.bashrc
 
 
 RUN apt-get install -y software-properties-common
@@ -53,6 +59,8 @@ RUN mkdir /var/run/sshd && \
 RUN apt-get install -y --force-yes \
                 build-essential \
                 lib32ncurses5 \
+                libgl1-mesa-dev \
+                lib32z1 \
 	        	lib32stdc++6 
 
 				
@@ -195,13 +203,19 @@ ENV PATH $PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/p
 
 RUN echo "y" | android update sdk  -u -a -t  1
 RUN echo "y" | android update sdk  -u -a -t 2,5,24,67,68
-RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "default/armeabi-v7a"
 RUN chmod a+x /usr/local/android-sdk-linux/tools/*
 RUN chmod a+x /usr/local/android-sdk-linux/platform-tools/*
+
+USER jenkins
+WORKDIR /home/jenkins
+RUN echo "no" | android create avd --name myandroid22 -t "android-22" --abi "default/armeabi-v7a"
+
 
 
 
 ################# Run app ######################
+USER root
+WORKDIR /root
 EXPOSE 8080 8000 80 443 4723
 RUN echo $(grep $(hostname) /etc/hosts | cut -f1) localhost>> /etc/hosts
 
