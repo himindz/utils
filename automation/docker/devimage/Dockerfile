@@ -91,8 +91,9 @@ RUN gem install --no-rdoc --no-ri appium_lib \
 								  ruby-jmeter \
 								  jsonpath \
 								  colorize \
-								  page-object \
-								  cucumber -v 1.3.19 
+								  page-object
+								   
+RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19 
                                
 ################# Install nodejs and node packages ########
 USER root
