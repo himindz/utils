@@ -23,7 +23,7 @@ RUN mkdir /var/log/localhost && \
 	mkdir -p /var/www/apps/localhost/public
 
 #Add User jenkins
-RUN adduser --quiet --uid 1000 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
+RUN adduser --quiet --uid 1001 --disabled-password -shell /bin/bash --home /home/jenkins --gecos "User" jenkins  && \
     echo "jenkins:$DEFAULT_PASSWORD" | chpasswd
 RUN echo "export DISPLAY=:0" >>/etc/bash.bashrc
 RUN echo export PATH=\$PATH:/usr/local/lib/node_modules/bin:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>/etc/bash.bashrc
