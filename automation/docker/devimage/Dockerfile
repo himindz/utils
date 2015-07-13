@@ -9,8 +9,8 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 RUN rm -rf /etc/Dockerfile
 ADD Dockerfile /etc/Dockerfile
-RUN rm -rf /etc/apt/sources.list
-ADD sources.list /etc/apt/sources.list
+#RUN rm -rf /etc/apt/sources.list
+#ADD sources.list /etc/apt/sources.list
 
 ADD sudoers /etc/sudoers
 RUN chmod 640 /etc/sudoers
@@ -46,37 +46,41 @@ RUN apt-get remove -y  openssh-client openssh-server
 ################# Install Java & SSH ######################
 RUN apt-key update && apt-get update && apt-get install -y --force-yes \
                 openssh-server \
-                oracle-java8-installer 
+                oracle-java8-installer
 
 RUN rm -rf /var/cache/oracle-jdk8-installer && \
     mkdir /var/run/sshd && \
     /usr/sbin/sshd
 
-################ Install build tools and 32 bit libs for android ##########        
+################ Install build tools and 32 bit libs for android ##########
 RUN apt-get install -y --force-yes \
                 build-essential \
                 lib32ncurses5 \
                 libgl1-mesa-dev \
                 lib32z1 \
-	        	bash \
-				wget \
-				curl \
-                expect \ 
+	        	    bash \
+				        wget \
+				        curl \
+                m4 \
+                libbz2-dev \
+                libcurl4-openssl-dev \
+                libexpat-dev \
+                libncurses-dev \
+                expect \
                 sshpass \
                 unzip \
                 zip \
                 zlib1g \
-                zlib1g-dev \ 
+                zlib1g-dev \
                 ruby \
                 git \
                 maven \
-                gradle \ 
-                ruby-dev \ 
+                gradle \
+                ruby-dev \
                 nginx \
-	        	firefox \
-                lib32stdc++6 
+	        	    firefox \
+                lib32stdc++6
 
-				
 ############# Install gems ###################################
 RUN gem install --no-rdoc --no-ri appium_lib \
 								  nokogiri \
@@ -86,20 +90,16 @@ RUN gem install --no-rdoc --no-ri appium_lib \
 								  rspec \
 								  watir-webdriver \
 								  ruby-jmeter \
-								  rspec \
-								  watir-webdriver \
-								  ruby-jmeter \
 								  jsonpath \
 								  colorize \
 								  page-object
-								   
-RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19 
-                               
+
+RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
 ################# Install nodejs and node packages ########
 USER root
 RUN mkdir /opt/node
-RUN chown -R jenkins.jenkins /opt/node && \
-    chmod -R 775  /opt/node
+RUN chown -R jenkins.jenkins /opt/node
+RUN chmod -R 775  /opt/node
 RUN echo export PATH="\$HOME/.linuxbrew/bin:\$PATH" >>/etc/bash.bashrc
 RUN echo export LD_LIBRARY_PATH="\$HOME/.linuxbrew/lib:\$LD_LIBRARY_PATH">>/etc/bash.bashrc
 RUN echo export PATH=\$PATH:/opt/node/bin >>/etc/bash.bashrc
@@ -108,11 +108,12 @@ RUN echo export PATH="/usr/bin/cucumber-junit/bin:\$PATH" >>/etc/bash.bashrc
 USER jenkins
 WORKDIR /home/jenkins
 RUN echo -e "\n" | ruby -e "$(wget -O- https://raw.github.com/Homebrew/linuxbrew/go/install)"
-ENV PATH "/home/jenkins/.linuxbrew/bin:$PATH"
+ENV PATH "/home/jenkins/.linuxbrew/bin:/opt/node/bin:$PATH"
 ENV LD_LIBRARY_PATH "/home/jenkins/.linuxbrew/lib:$LD_LIBRARY_PATH"
 ENV PATH $PATH:/opt/node/bin
 WORKDIR /opt/node
-RUN brew doctor && \
+RUN brew update && \
+    brew doctor && \
     brew install node
 RUN npm config set prefix '/opt/node'
 RUN npm install -g npm
@@ -122,6 +123,7 @@ RUN npm install -g appium
 RUN npm install -g bower
 RUN npm install -g generator-angular-fullstack
 RUN npm install -g wd
+
 
 #################### Install cucumber-junit ###############
 WORKDIR /home/jenkins
@@ -137,7 +139,7 @@ USER root
 WORKDIR /root
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
-ENV TOMCAT_PASS="password"
+ENV TOMCAT_PASS=$DEFAULT_PASSWORD
 WORKDIR $CATALINA_HOME
 RUN mkdir -p "$CATALINA_HOME"
 ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
@@ -164,14 +166,14 @@ ENV PATH $GRAILS_HOME/bin:$PATH
 ########################## install android sdk ########################
 USER root
 WORKDIR /usr/local/
-RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz 
+RUN wget http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz
 RUN tar -xzvf android-sdk_r24.3.3-linux.tgz && \
     rm -Rf android-sdk_r24.3.3-linux.tgz && \
     chown -R root.jenkins android-sdk-linux
 RUN echo export JAVA_HOME=/usr/lib/jvm/java-8-oracle >> /etc/bash.bashrc
 RUN echo export ANDROID_HOME=/usr/local/android-sdk-linux >>/etc/bash.bashrc
 RUN echo export PATH=\$PATH:/usr/local/android-sdk-linux/tools:/usr/local/android-sdk-linux/platform-tools >>/etc/bash.bashrc
-    
+
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 ENV ANDROID_HOME /usr/local/android-sdk-linux
