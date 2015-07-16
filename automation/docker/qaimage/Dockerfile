@@ -79,6 +79,8 @@ RUN apt-get install -y --force-yes \
                 ruby-dev \
                 nginx \
 	        	    firefox \
+		chromium-browser \
+		imagemagick \
                 lib32stdc++6
 
 
@@ -125,6 +127,9 @@ RUN npm install -g appium
 RUN npm install -g bower
 RUN npm install -g generator-angular-fullstack
 RUN npm install -g wd
+RUN npm install -g protractor
+RUN npm install -g chromedriver
+RUN npm install -g phantomjs
 
 #################### Install cucumber-junit ###############
 WORKDIR /home/jenkins
@@ -134,6 +139,22 @@ RUN npm install
 USER root
 WORKDIR /home/jenkins
 RUN mv cucumber-junit /usr/bin/.
+
+########################## Install Selenium #####################
+USER root
+RUN mkdir /usr/local/share/selenium && \
+        chown -R jenkins.jenkins /usr/local/share/selenium && \
+        mkdir /var/log/selenium && \
+        chown jenkins.jenkins /var/log/selenium
+ADD selenium /etc/init.d/selenium
+RUN chmod a+x /etc/init.d/selenium && \
+    update-rc.d  /etc/init.d/selenium defaults && \
+    touch /phantomjsdriver.log && \
+    chmod 666 /phantomjsdriver.log
+
+USER jenkins
+RUN wget http://selenium-release.storage.googleapis.com/2.46/selenium-server-standalone-2.46.0.jar
+RUN mv selenium-server-standalone-2.46.0.jar /usr/local/share/selenium
 
 ########################## Install tomcat #######################
 USER root
