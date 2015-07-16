@@ -148,7 +148,6 @@ RUN mkdir /usr/local/share/selenium && \
 	chown jenkins.jenkins /var/log/selenium
 ADD selenium /etc/init.d/selenium
 RUN chmod a+x /etc/init.d/selenium && \
-    update-rc.d  /etc/init.d/selenium defaults && \
     touch /phantomjsdriver.log && \
     chmod 666 /phantomjsdriver.log
 
