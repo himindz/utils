@@ -58,9 +58,9 @@ RUN apt-get install -y --force-yes \
                 lib32ncurses5 \
                 libgl1-mesa-dev \
                 lib32z1 \
-	        	    bash \
-				        wget \
-				        curl \
+	        	bash \
+				wget \
+				curl \
                 m4 \
                 libbz2-dev \
                 libcurl4-openssl-dev \
@@ -78,9 +78,9 @@ RUN apt-get install -y --force-yes \
                 gradle \
                 ruby-dev \
                 nginx \
-	        	    firefox \
-		chromium-browser \
-		imagemagick \
+	        	firefox \
+				chromium-browser \
+				imagemagick \
                 lib32stdc++6
 
 ############# Install gems ###################################
@@ -94,6 +94,7 @@ RUN gem install --no-rdoc --no-ri appium_lib \
 								  ruby-jmeter \
 								  jsonpath \
 								  colorize \
+								  compass \
 								  page-object
 
 RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
@@ -128,6 +129,7 @@ RUN npm install -g wd
 RUN npm install -g protractor
 RUN npm install -g chromedriver
 RUN npm install -g phantomjs
+RUN npm install -g grunt-contrib-compass
 
 
 #################### Install cucumber-junit ###############
