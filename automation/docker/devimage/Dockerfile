@@ -114,6 +114,11 @@ RUN echo -e "\n" | ruby -e "$(wget -O- https://raw.github.com/Homebrew/linuxbrew
 ENV PATH "/home/jenkins/.linuxbrew/bin:/opt/node/bin:$PATH"
 ENV LD_LIBRARY_PATH "/home/jenkins/.linuxbrew/lib:$LD_LIBRARY_PATH"
 ENV PATH $PATH:/opt/node/bin
+RUN echo export PATH="\$HOME/.linuxbrew/bin:\$PATH" >>/home/jenkins/.profile
+RUN echo export LD_LIBRARY_PATH="\$HOME/.linuxbrew/lib:\$LD_LIBRARY_PATH">>/home/jenkins/.profile
+RUN echo export PATH=\$PATH:/opt/node/bin >>/home/jenkins/.profile
+RUN echo export PATH="/usr/bin/cucumber-junit/bin:\$PATH" >>/home/jenkins/.profile
+
 WORKDIR /opt/node
 RUN brew update && \
     brew doctor && \
