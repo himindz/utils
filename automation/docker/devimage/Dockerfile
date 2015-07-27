@@ -129,6 +129,7 @@ RUN npm install -g xml
 RUN npm install -g grunt-cli
 RUN npm install -g appium
 RUN npm install -g bower
+RUN npm install -g jade
 RUN npm install -g generator-angular-fullstack
 RUN npm install -g wd
 RUN npm install -g protractor
