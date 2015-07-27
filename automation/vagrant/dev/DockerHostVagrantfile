@@ -33,7 +33,9 @@ if os().to_s == 'windows'
 end
 
 host_gradle_folder = host_home_folder+"/.gradle"
+host_ssh_folder = host_home_folder+"/.ssh"
 guest_gradle_folder = guest_home_folder+"/.gradle"
+guest_ssh_folder = guest_home_folder+"/.ssh"
 api_src_folder = guest_home_folder+"/"+settings['api_project']['name']
 web_src_folder = guest_home_folder+"/"+settings['web_project']['name']
 
@@ -105,6 +107,9 @@ Vagrant.configure("2") do |config|
     owner: dev_uid
   config.vm.synced_folder host_gradle_folder, guest_gradle_folder,
     owner: dev_uid
+  config.vm.synced_folder host_ssh_folder, guest_ssh_folder,
+    owner: dev_uid
+
 
  config.vm.provision "shell", inline:
     "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"

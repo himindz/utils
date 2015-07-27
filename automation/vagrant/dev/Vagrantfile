@@ -36,6 +36,7 @@ xwintmp = "/tmp/.X11-unix:/tmp/.X11-unix"
 settings = YAML.load_file 'vagrant.yml'
 dev_uid = Process.uid
 gradle_folder = home_folder+"/.gradle"
+ssh_folder = home_folder+"/.ssh"
 api_src_folder = home_folder+"/"+settings['api_project']['name']
 web_src_folder = home_folder+"/"+settings['web_project']['name']
 puts xwinvols
@@ -52,7 +53,7 @@ Vagrant.configure("2") do |config|
       d.env = {"DEV_UID"=>dev_uid,"USERNAME"=>settings['user']['name'],"HOME_FOLDER"=>home_folder,"DEFAULT_PASSWORD"=>settings['user']['default_password'],"DISPLAY"=>":0"}
       d.build_args = ["-t=devimage"]
       d.ports = ["8080:8080","8000:8000","80:80","443:443","2222:22"]
-      d.volumes = [gradle_folder+":"+gradle_folder,api_src_folder+":"+api_src_folder,web_src_folder+":"+web_src_folder,settings['web_project']['document_root']+":"+settings['web_project']['document_root'],xwinvols,xwintmp]
+      d.volumes = [ssh_folder+":"+ssh_folder,gradle_folder+":"+gradle_folder,api_src_folder+":"+api_src_folder,web_src_folder+":"+web_src_folder,settings['web_project']['document_root']+":"+settings['web_project']['document_root'],xwinvols,xwintmp]
       d.cmd = ["/run.sh"]
       d.vagrant_machine = "dockerhostvm"
       d.vagrant_vagrantfile = "./DockerHostVagrantfile"
