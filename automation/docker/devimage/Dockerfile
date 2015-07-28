@@ -34,10 +34,10 @@ RUN echo export LANGUAGE=en_US:en >>/etc/bash.bashrc
 RUN echo export LC_ALL=en_US.UTF-8 >>/etc/bash.bashrc
 
 
-RUN apt-get install -y software-properties-common
-RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
-RUN add-apt-repository -y ppa:webupd8team/java
-RUN add-apt-repository ppa:cwchien/gradle
+RUN apt-get install -y software-properties-common && \
+    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+    add-apt-repository -y ppa:webupd8team/java && \
+    add-apt-repository ppa:cwchien/gradle
 #RUN add-apt-repository ppa:chris-lea/node.js
 
 RUN apt-get remove -y  openssh-client openssh-server
@@ -58,9 +58,9 @@ RUN apt-get install -y --force-yes \
                 lib32ncurses5 \
                 libgl1-mesa-dev \
                 lib32z1 \
-	        	bash \
-				wget \
-				curl \
+	        bash \
+		wget \
+		curl \
                 m4 \
                 libbz2-dev \
                 libcurl4-openssl-dev \
@@ -78,24 +78,24 @@ RUN apt-get install -y --force-yes \
                 gradle \
                 ruby-dev \
                 nginx \
-	        	firefox \
-				chromium-browser \
-				imagemagick \
+	        firefox \
+		chromium-browser \
+		imagemagick \
                 lib32stdc++6
 
 ############# Install gems ###################################
 RUN gem install --no-rdoc --no-ri appium_lib \
-								  nokogiri \
-								  nokogiri-plist \
-								  net-ssh \
-								  net-scp \
-								  rspec \
-								  watir-webdriver \
-								  ruby-jmeter \
-								  jsonpath \
-								  colorize \
-								  compass \
-								  page-object
+		nokogiri \
+		nokogiri-plist \
+		net-ssh \
+		net-scp \
+		rspec \
+		watir-webdriver \
+		ruby-jmeter \
+		jsonpath \
+		colorize \
+		compass \
+		page-object
 
 RUN gem install --no-rdoc --no-ri cucumber -v 1.3.19
 ################# Install nodejs and node packages ########
@@ -114,10 +114,8 @@ RUN echo -e "\n" | ruby -e "$(wget -O- https://raw.github.com/Homebrew/linuxbrew
 ENV PATH "/home/jenkins/.linuxbrew/bin:/opt/node/bin:$PATH"
 ENV LD_LIBRARY_PATH "/home/jenkins/.linuxbrew/lib:$LD_LIBRARY_PATH"
 ENV PATH $PATH:/opt/node/bin
-RUN echo export PATH="\$HOME/.linuxbrew/bin:\$PATH" >>/home/jenkins/.profile
+RUN echo export PATH="\$HOME/.linuxbrew/bin:/opt/node/bin:/usr/bin/cucumber-junit/bin:\$PATH" >>/home/jenkins/.profile
 RUN echo export LD_LIBRARY_PATH="\$HOME/.linuxbrew/lib:\$LD_LIBRARY_PATH">>/home/jenkins/.profile
-RUN echo export PATH=\$PATH:/opt/node/bin >>/home/jenkins/.profile
-RUN echo export PATH="/usr/bin/cucumber-junit/bin:\$PATH" >>/home/jenkins/.profile
 
 WORKDIR /opt/node
 RUN brew update && \
