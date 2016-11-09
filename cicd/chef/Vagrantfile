@@ -1,0 +1,83 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = '2'
+
+Vagrant.require_version '>= 1.5.0'
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+
+  config.vm.box = "bento/centos-6.7"
+
+  # May need to configure these to point at your cntlm proxy or otherwise
+  config.proxy.http     = "http://webproxy.ad.aib.pri:8080"
+  config.proxy.https    = "https://webproxy.ad.aib.pri:8080"
+  config.proxy.no_proxy = "rhethalt2.mid.aib.pri,nexus.aib.pri,supermarket.platform.aib.pri,artifactory.platform.aib.pri,.aib.pri,localhost"
+
+  config.vm.network :forwarded_port, guest: 61616, host: 61616, auto_correct: true
+  config.vm.network :private_network, ip: "192.168.56.5"
+  config.vbguest.auto_update = false
+  config.ssh.insert_key = false
+  if Vagrant.has_plugin?("vagrant-omnibus")
+    config.omnibus.chef_version = "12.14.89"
+  end
+#  chef.version = "12.10.40"
+#  chef.channel
+
+#  This is for installing jdk 1.7
+#  config.vm.provision "shell", inline: <<-SHELL
+#    #echo Installing Java
+#    cd ~
+#    # This should really be stored in artifactory or something similar, as Oracle intermittenly change the download url
+#    wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.rpm"
+#    sudo yum -y localinstall jdk-7u79-linux-x64.rpm
+#    sudo sh -c 'echo export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::") >> /etc/environment'
+#  SHELL
+
+    config.vm.provision "shell", inline: <<-SHELL
+      #echo Installing Java
+      cd ~
+      # This should really be stored in artifactory or something similar, as Oracle intermittenly change the download url
+      sudo yum install -y kernel-headers kernel-devel gcc java-1.7.0-openjdk-devel
+      sudo sh -c "cat /vagrant/ALPASWCSROOTCA.crt >> /opt/chef/embedded/ssl/cert.pem "
+    SHELL
+
+  # This is for installing jdk 1.8
+  config.vm.provision "shell", inline: <<-SHELL
+    echo Installing Java
+    cd ~
+    # This should really be stored in artifactory or something similar, as Oracle intermittenly change the download url
+    wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jdk-8u91-linux-x64.rpm"
+    sudo yum -y localinstall jdk-8u91-linux-x64.rpm
+    sudo sh -c 'echo export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::") >> /etc/environment'
+
+  SHELL
+
+#  config.berkshelf.enabled = true
+
+  config.vm.provision :chef_zero do |chef|
+    # Specify the local paths where Chef data is stored
+    chef.cookbooks_path = "cookbooks"
+    chef.nodes_path = "nodes"
+    chef.channel = "stable"
+    chef.custom_config_path = "Vagrantfile.chef"
+
+    chef.json = {
+          "demo-http-microservice" => {
+            "demo-http-microservice" => "true",
+            "artifact" => {
+              "version" => "0.0.1"
+            },
+            "app" => {
+              "defines" => {
+                "kafka.brokerlist" => "rhdsfvt1.mid.aib.pri:9092"
+              }
+            }
+          }
+        }
+
+    chef.add_recipe "demo-http-microservice"
+#    chef.add_recipe "aib_wilyagent::install"
+  end
+end

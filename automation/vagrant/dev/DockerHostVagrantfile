@@ -65,12 +65,12 @@ SCRIPT
 Vagrant.configure("2") do |config|
   puts "Creating dockerhostvm in virtualbox"
   config.vm.box = "box-cutter/ubuntu1404-desktop"
-  config.vm.define "dockerhostvm"
+  config.vm.define "dockerhostvm2"
   file_to_disk = File.realpath( "." ).to_s + "/disk.vdi"
 
   config.vm.provider :virtualbox do |vb|
     puts "Customizing dockerhost vm "+vb.to_s
-    vb.name = "dockerhostvm"
+    vb.name = "dockerhostvm2"
     vb.memory = "2048"
     vb.customize ["modifyvm", :id, "--cpus", "2"]
     vb.customize ["modifyvm", :id, "--graphicscontroller", "vboxvga"]

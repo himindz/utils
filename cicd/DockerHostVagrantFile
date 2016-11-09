@@ -1,0 +1,89 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require 'yaml'
+require 'rbconfig'
+require 'io/console'
+
+dev_uid = Process.uid
+settings = YAML.load_file 'vagrant.yml'
+def os
+    @os ||= (
+      host_os = RbConfig::CONFIG['host_os']
+      case host_os
+      when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
+        :windows
+      when /darwin|mac os/
+        :macosx
+      when /linux/
+        :linux
+      when /solaris|bsd/
+        :unix
+      else
+        raise Error::WebDriverError, "unknown os: #{host_os.inspect}"
+      end
+    )
+end
+
+if os().to_s == 'windows'
+  username = ENV['USER']
+  guest_home_folder = "/home/"+username
+  dev_uid = 1001
+end
+
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.define settings['microservice']['name']
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+    config.proxy.http     = "http://webproxy.ad.aib.pri:8080"
+    config.proxy.https    = "https://webproxy.ad.aib.pri:8080"
+    config.proxy.no_proxy = "localhost,127.0.0.1,.aib.pri"
+  end
+  registry_server = settings['docker_local_registry']['server']
+  registry_port = settings['docker_local_registry']['port']
+  registry_user = settings['docker_local_registry']['user']
+  registry_password = settings['docker_local_registry']['password']
+
+  config.vm.provider :virtualbox do |vb|
+    vb.name = settings['microservice']['name']
+    vb.memory = "3072"
+    vb.customize ["modifyvm", :id, "--cpus", "2"]
+    vb.customize ["modifyvm", :id, "--graphicscontroller", "vboxvga"]
+    vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+    vb.customize ["modifyvm", :id, "--vram", "128"]
+    vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
+    vb.gui = true
+  end
+  config.vm.provision :shell, inline: "sudo apt-get update"
+  config.vm.provision :shell, inline: "sudo apt-get install -y nfs-common nfs-kernel-server apt-transport-https ca-certificates dos2unix"
+
+  config.vm.provision :shell, inline: "sudo cp /vagrant/docker/ALPASWCSROOTCA.crt /usr/local/share/ca-certificates/."
+  config.vm.provision :shell, inline: "sudo update-ca-certificates"
+  config.vm.provision :shell, inline: "sudo  curl -s -L https://github.com/docker/compose/releases/download/1.7.1/docker-compose-`uname -s`-`uname -m` > docker-compose"
+  config.vm.provision :shell, inline: "sudo  mv docker-compose /usr/local/bin/docker-compose"
+  config.vm.provision :shell, inline: "sudo  chmod +x /usr/local/bin/docker-compose"
+  config.vm.provision :docker
+  config.vm.provision :shell, inline: "sudo cp /vagrant/docker/docker /etc/default/docker"
+  config.vm.provision :shell, inline: "sudo dos2unix /etc/default/docker"
+  config.vm.provision :shell, inline: "sudo service docker restart"
+  config.vm.provision :shell, inline: "sudo docker volume create --name maven-home"
+  config.vm.provision :shell, inline: "sudo mkdir -p /etc/docker/certs.d/#{registry_server}:#{registry_port}; sudo rm -Rf /etc/docker/certs.d/#{registry_server}:18443; sudo rm -Rf /etc/docker/certs.d/#{registry_server}:18445 ;sudo ln -s /etc/docker/certs.d/#{registry_server}:#{registry_port} /etc/docker/certs.d/#{registry_server}:18443; sudo ln -s /etc/docker/certs.d/#{registry_server}:#{registry_port} /etc/docker/certs.d/#{registry_server}:18445 "
+  config.vm.provision :shell, inline: "sudo openssl s_client -showcerts -connect #{registry_server}:#{registry_port} </dev/null 2>/dev/null|openssl x509 -outform PEM >localregistry.crt;sudo mv localregistry.crt /etc/docker/certs.d/#{registry_server}:#{registry_port}/localregistry.crt"
+  config.vm.provision :shell, inline: "docker login --username=#{registry_user} --password=#{registry_password} #{registry_server}:#{registry_port}"
+  config.vm.provision :shell, inline: "docker pull #{registry_server}:#{registry_port}/infra/dcp-devimage"
+  config.vm.provision :shell, inline: "docker pull #{registry_server}:#{registry_port}/infra/dcp-qaimage"
+  config.vm.provision :shell, inline: "docker tag  #{registry_server}:#{registry_port}/infra/dcp-qaimage qaimage"
+  config.vm.provision :shell, inline: "docker tag  #{registry_server}:#{registry_port}/infra/dcp-devimage devimage"
+
+  config.vm.provision "shell", inline:
+     "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
+
+
+ config.vm.network "forwarded_port",
+     guest: 8080, host: 8080
+ config.vm.network "forwarded_port",
+     guest: 18080, host: 18080
+ config.vm.network "forwarded_port",
+    guest: 2222, host: 12222
+end

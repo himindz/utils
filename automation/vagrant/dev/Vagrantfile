@@ -55,7 +55,7 @@ Vagrant.configure("2") do |config|
       d.ports = ["8080:8080","8000:8000","80:80","443:443","2222:22"]
       d.volumes = [ssh_folder+":"+ssh_folder,gradle_folder+":"+gradle_folder,api_src_folder+":"+api_src_folder,web_src_folder+":"+web_src_folder,settings['web_project']['document_root']+":"+settings['web_project']['document_root'],xwinvols,xwintmp]
       d.cmd = ["/run.sh"]
-      d.vagrant_machine = "dockerhostvm"
+      d.vagrant_machine = "dockerhostvm2"
       d.vagrant_vagrantfile = "./DockerHostVagrantfile"
     end
   end

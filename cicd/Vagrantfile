@@ -1,0 +1,64 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require 'yaml'
+require 'rbconfig'
+settings = YAML.load_file 'vagrant.yml'
+
+home_folder = ENV['HOME']
+
+def os
+  @os ||= (
+  host_os = RbConfig::CONFIG['host_os']
+  case host_os
+    when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
+      :windows
+    when /darwin|mac os/
+      :macosx
+    when /linux/
+      :linux
+    when /solaris|bsd/
+      :unix
+    else
+      raise Error::WebDriverError, "unknown os: #{host_os.inspect}"
+  end
+  )
+end
+if os().to_s == 'windows'
+  username = ENV['USER']
+  home_folder = "/home/"+username
+end
+
+settings = YAML.load_file 'vagrant.yml'
+dev_uid = Process.uid
+ssh_folder = home_folder+"/.ssh"
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder ".", "/vagrant", type: "nfs"
+  config.vm.define "devimage" do |a|
+    a.vm.provider "docker" do |d|
+      d.image = "devimage"
+      d.force_host_vm = true
+      d.env = {"DEV_UID"=>dev_uid,"USERNAME"=>settings['user']['name'],"HOME_FOLDER"=>home_folder,"DEFAULT_PASSWORD"=>settings['user']['default_password'],"DISPLAY"=>":0"}
+      d.volumes = ["/vagrant:/git"]
+      d.ports = ["18080:8080","12222:22"]
+      d.vagrant_machine = settings['microservice']['name']
+      d.vagrant_vagrantfile = "./DockerHostVagrantfile"
+    end
+  end
+  config.vm.define "qaimage" do |a|
+    a.vm.provider "docker" do |d|
+      d.image = "qaimage"
+      d.force_host_vm = true
+      d.has_ssh = false
+      d.cmd = ["/bin/bash"]
+      d.ports = ["12223:22"]
+      d.volumes = ["/vagrant:/git"]
+      d.vagrant_machine = settings['microservice']['name']
+      d.vagrant_vagrantfile = "./DockerHostVagrantfile"
+      d.remains_running = false
+    end
+  end
+
+end

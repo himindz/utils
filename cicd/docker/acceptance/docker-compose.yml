@@ -1,0 +1,6 @@
+version: '2'
+services:
+  demo_http_microservice:
+    image: aib/demo_http_microservice
+    ports:
+      - "8080:8080"
