@@ -1,0 +1,66 @@
+{
+  "userId": "43dd256d-6b15-40f9-af17-43c285583002",
+  "esoUserName": "bob.johnson@external.stage.accenture.com",
+  "firstName": "Bob",
+  "lastName": "Johnson",
+  "email": "bob.johnson@gmail.com",
+  "userStatus": "ACTIVE",
+  "userContactPrefs": [
+
+    {
+      "contactType": "LinkedIn",
+      "contactDetail": "https://ie.linkedin.com/bob.johnson",
+      "contactEnabled": true,
+      "contactPrivate": false
+    }
+
+  ],
+  "userLocations": [
+    {
+      "locationType": "currentCity",
+      "locationDescription": "Chicago",
+      "locationCoords": {
+        "latitude": "41.881832",
+        "longitude": "-87.623177"
+      },
+      "locationReferenceDataId": "98"
+    },
+    {
+      "locationType": "destinationCity",
+      "locationDescription": "New York",
+      "locationCoords": {
+        "latitude": "40.730610",
+        "longitude": "-73.935242"
+      },
+      "locationReferenceDataId": "99"
+    },
+    {
+      "locationType": "originCity",
+      "locationDescription": "Los Angeles",
+      "locationCoords": {
+        "latitude": "34.052235",
+        "longitude": "-118.243683"
+      },
+      "locationReferenceDataId": "979"
+    }
+
+  ],
+  "userESOInformation": {
+    "isESOUser": true,
+    "esoId": "bob.johnson@external.stage.accenture.com"
+  },
+  "userCareerInformation": {
+    "deployedToEntity": "Corporate Functions",
+    "deployedToEntityReferenceDataId": "99",
+    "talentSegment": "Tech Arch",
+    "talentSegmentReferenceDataId": "102",
+    "role": "Analyst",
+    "roleReferenceDataId": "202"
+  },
+  "userEducationInformation": [
+    {
+      "collegeName": "Georgetown",
+      "collegeNameReferenceDataId": "230"
+    }
+  ]
+}

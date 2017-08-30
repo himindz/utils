@@ -1,0 +1,56 @@
+{
+  "userId": "43dd256d-6b15-40f9-af17-43c285583001",
+  "esoUserName": "wendy@external.stage.accenture.com",
+  "firstName": "Wendy",
+  "lastName": "Jones",
+  "email": "wendy@accenture.com",
+  "userStatus": "ACTIVE",
+  "userContactPrefs": [
+
+    {
+      "contactType": "LinkedIn",
+      "contactDetail": "https://ie.linkedin.com/wendyjones",
+      "contactEnabled": true,
+      "contactPrivate": false
+    }
+
+  ],
+  "userLocations": [
+    {
+      "locationType": "currentCity",
+      "locationDescription": "New York",
+      "locationCoords": {
+        "latitude": "40.730610",
+        "longitude": "-73.935242"
+      },
+      "locationReferenceDataId": "99"
+    },
+    {
+      "locationType": "destinationCity",
+      "locationDescription": "Chicago",
+      "locationCoords": {
+        "latitude": "41.881832",
+        "longitude": "-87.623177"
+      },
+      "locationReferenceDataId": "98"
+    }
+  ],
+  "userESOInformation": {
+    "isESOUser": true,
+    "esoId": "wendy@external.stage.accenture.com"
+  },
+  "userCareerInformation": {
+    "deployedToEntity": "Corporate Functions",
+    "deployedToEntityReferenceDataId": "99",
+    "talentSegment": "Software Engineering",
+    "talentSegmentReferenceDataId": "101",
+    "role": "Analyst",
+    "roleReferenceDataId": "201"
+  },
+  "userEducationInformation": [
+    {
+      "collegeName": "NYU",
+      "collegeNameReferenceDataId": "229"
+    }
+  ]
+}
